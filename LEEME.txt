@@ -1,0 +1,31 @@
+CDN 26 · Fútbol 5 Arcade · Versión 1.0 · Lanzamiento
+=======================================
+
+CONTENIDO
+- index.html .......... el juego (ahora pesa ~1,4 MB en vez de 26 MB)
+- assets/ ............. video de la intro, canciones e imágenes (index.html los carga solo)
+- manifest.webmanifest, sw.js, icon-*.png, favicon.png ... app instalable e ícono
+- server.js, package.json, render.yaml ... servidor para render.com (juego + salas online)
+- relay.json .......... dónde está el servidor de salas (para GitHub Pages)
+
+IMPORTANTE: sube SIEMPRE la carpeta completa (index.html + assets/ juntos).
+
+OPCIÓN A · TODO EN RENDER.COM (recomendado: el online funciona con datos móviles)
+1. Sube todo el contenido de esta carpeta a un repositorio de GitHub (sin node_modules).
+2. En render.com: New + → Web Service → elige el repositorio.
+   - Runtime: Node · Build Command: npm install · Start Command: node server.js · Plan: Free
+   (o New + → Blueprint, que lee render.yaml solo)
+3. Abre la dirección que te da Render (https://TU-APP.onrender.com). Listo: el juego
+   detecta solo el servidor de salas.
+   Nota: el plan gratis se "duerme" tras 15 min sin uso; la primera conexión puede
+   tardar ~1 minuto (el juego muestra "Despertando el servidor de salas…").
+
+OPCIÓN B · JUEGO EN GITHUB PAGES + SALAS EN RENDER
+1. Haz la opción A (para tener el servidor).
+2. En el repositorio de GitHub Pages edita relay.json y pon:
+   { "url": "wss://TU-APP.onrender.com/ws" }
+3. Así los que entren por GitHub Pages y los que entren por Render juegan en las mismas salas.
+   Si relay.json queda vacío, el juego usa la conexión directa de antes (puede fallar con datos móviles).
+
+Todos los jugadores deben tener la misma versión (v1.0). Si alguien ve la versión vieja,
+que cierre la app y la vuelva a abrir.

@@ -1,0 +1,15 @@
+{
+  "name": "cdn26-servidor",
+  "version": "1.1.0",
+  "description": "CDN 26 · Fútbol 5 Arcade: juego + servidor de salas online (render.com)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.22.0"
+  }
+}
