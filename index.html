@@ -1309,6 +1309,16 @@
         /* listas y tarjetas internas: sombras suaves y sin brillo oscuro */
         #ui-layer select, #ui-layer input[type=text], #ui-layer input[type=number], #ui-layer input[type=email], #ui-layer input[type=password], #account-panel input, #settings-panel select { background: #f8fafc !important; color: var(--ink) !important; border: 1px solid #cfd6df !important; border-radius: 2px !important; }
         #ui-layer select option { background: #fff; color: #1d2230; }
+        /* logo de la Supercopa (neón) sobre fondo oscuro para que se vea en el tema claro */
+        .tr-card[data-type="supercopa"] img, .tr-head img[src*="supercopa"] { background: #0f172a; border-radius: 10px; padding: 6px; }
+        /* Torneos en celular: los 3 torneos lado a lado */
+        @media (max-width: 640px) {
+            #menu-tour .tr-cards { grid-template-columns: repeat(3, minmax(0, 1fr)) !important; gap: 6px !important; }
+            #menu-tour .tr-card { padding: 10px 4px 8px !important; }
+            #menu-tour .tr-card img { height: 54px !important; filter: drop-shadow(0 4px 8px rgba(0,0,0,.35)) !important; }
+            #menu-tour .tr-card h3 { font-size: 17px !important; margin-top: 4px; overflow-wrap: anywhere; }
+            #menu-tour .tr-card p { font-size: 9.5px !important; line-height: 1.25 !important; display: -webkit-box; -webkit-line-clamp: 5; -webkit-box-orient: vertical; overflow: hidden; margin-top: 3px; }
+        }
         /* el campo y las cartas mantienen su color */
         .sb-pitch, .ut-pitch, .lu-pitch { border-radius: 2px !important; }
         #ui-layer .text-slate-50:not([class*="bg-emerald-5"]):not([class*="bg-blue-5"]):not([class*="bg-amber-5"]):not([class*="bg-amber-6"]):not([class*="bg-red-"]):not([class*="bg-indigo-"]), #modal-controls .text-slate-50:not([class*="bg-emerald-5"]):not([class*="bg-blue-5"]):not([class*="bg-amber-5"]):not([class*="bg-amber-6"]):not([class*="bg-red-"]):not([class*="bg-indigo-"]), #colors-panel .text-slate-50:not([class*="bg-emerald-5"]):not([class*="bg-blue-5"]):not([class*="bg-amber-5"]):not([class*="bg-amber-6"]):not([class*="bg-red-"]):not([class*="bg-indigo-"]), #settings-panel .text-slate-50:not([class*="bg-emerald-5"]):not([class*="bg-blue-5"]):not([class*="bg-amber-5"]):not([class*="bg-amber-6"]):not([class*="bg-red-"]):not([class*="bg-indigo-"]), #account-panel .text-slate-50:not([class*="bg-emerald-5"]):not([class*="bg-blue-5"]):not([class*="bg-amber-5"]):not([class*="bg-amber-6"]):not([class*="bg-red-"]):not([class*="bg-indigo-"]), #sim-modal .text-slate-50:not([class*="bg-emerald-5"]):not([class*="bg-blue-5"]):not([class*="bg-amber-5"]):not([class*="bg-amber-6"]):not([class*="bg-red-"]):not([class*="bg-indigo-"]) { color: #141c24 !important; }
@@ -7125,8 +7135,8 @@
             oro: { n: 'Sobre Oro', price: 6000, cards: 5, desc: '5 jugadores · 1 raro asegurado', odds: 'Carta especial 10%' },
             portero: { n: 'Sobre Arqueros', price: 2500, cards: 3, desc: '3 porteros', odds: 'Normales y raros' },
             evento: { n: 'Sobre Evento', price: 8000, cards: 5, desc: '5 jugadores · 1 Héroe o mejor asegurado', odds: 'Solo esta semana' },
-            premium: { n: 'Sobre Premium', price: 18000, cards: 5, desc: '5 jugadores de media alta · 1 Héroe, Leyenda o Ícono asegurado', odds: '35% de un 2º especial · Ícono 30%' },
-            heroe: { n: 'Sobre Élite', price: 40000, cards: 5, desc: '5 jugadores · 2 especiales asegurados', odds: '1º especial: Ícono 45% · Leyenda 35%' }
+            premium: { n: 'Sobre Premium', price: 18000, cards: 5, desc: '5 jugadores de media alta · 1 Héroe, Leyenda o Ícono asegurado', odds: '35% de un 2º especial · Ícono 15% · las de más media son muy raras' },
+            heroe: { n: 'Sobre Élite', price: 40000, cards: 5, desc: '5 jugadores · 2 especiales asegurados', odds: '1º especial: Ícono 25% · Leyenda 35% · las de más media son muy raras' }
         };
         const UT_CPU = [
             { id: 'facil', n: 'Fácil', avg: 75, win: 800, draw: 400, loss: 150 },
@@ -7162,13 +7172,22 @@
         const utVerR = (pl, ver) => pl.fixedR || (pl.sp && pl.sp[ver]) || Math.min(99, pl.base + (UT_VERS[ver] || UT_VERS.base).b);
         let utSpecialCache = null;
         const utSpecials = () => utSpecialCache || (utSpecialCache = utPool().list.flatMap(p => Object.keys(p.sp || {}).filter(v => v !== 'raro').map(ver => ({ key: p.key, ver, r: p.sp[ver] }))));
+        // Elige al azar dando menos probabilidad a la media alta: cada `half` puntos de media, la mitad de probabilidad
+        function utWeighted(L, rOf, half, rnd = Math.random) {
+            if (!L || !L.length) return null;
+            const lo = Math.min(...L.map(rOf));
+            const w = L.map(x => Math.pow(0.5, (rOf(x) - lo) / half));
+            let t = w.reduce((a, b) => a + b, 0) * rnd();
+            for (let i = 0; i < L.length; i++) { t -= w[i]; if (t <= 0) return L[i]; }
+            return L[L.length - 1];
+        }
         function utPickSpecial(w, rnd = Math.random) {      // w = { heroe, leyenda, icono } pesos
             const L = utSpecials(); if (!L.length) return null;
             const vers = Object.keys(w).filter(v => w[v] > 0 && L.some(x => x.ver === v));
             let tot = vers.reduce((a, v) => a + w[v], 0), x = rnd() * tot, ver = vers[vers.length - 1];
             for (const v of vers) { x -= w[v]; if (x <= 0) { ver = v; break; } }
             const C = L.filter(s => s.ver === ver);
-            const s = C[Math.floor(rnd() * C.length)] || L[Math.floor(rnd() * L.length)];
+            const s = utWeighted(C, x => x.r, 2.5, rnd) || L[Math.floor(rnd() * L.length)];
             return { key: s.key, ver: s.ver };
         }
         // Las cartas guardadas antes de los cambios se conservan: si un jugador cambió de clave (equipo), se busca por su nombre
@@ -7308,7 +7327,7 @@
             if (ut.coins < P.price) return null;
             ut.coins -= P.price; ut.packs = (ut.packs || 0) + 1; utMisProg({ packs: 1 });
             const pool = utActive(), out = [];
-            const pickP = (f) => { const L = pool.filter(f); return L[Math.floor(Math.random() * L.length)]; };
+            const pickP = (f) => utWeighted(pool.filter(f), p => p.base, 3.5);
             const R = Math.random;
             for (let i = 0; i < P.cards; i++) {
                 let ver = 'base', f = () => true, sp = null;
@@ -7319,12 +7338,12 @@
                 else if (type === 'evento') { f = p => p.base >= 80; if (i === 0) sp = utPickSpecial({ heroe: 6, leyenda: 2.5, icono: 1.5 }); else ver = R() < 0.4 ? 'raro' : 'base'; }
                 else if (type === 'heroe') {
                     f = p => p.base >= 84; ver = 'raro';
-                    if (i === 0) sp = utPickSpecial({ icono: 45, leyenda: 35, heroe: 20 });
+                    if (i === 0) sp = utPickSpecial({ icono: 25, leyenda: 35, heroe: 40 });
                     else if (i === 1) sp = utPickSpecial({ icono: 1, leyenda: 1, heroe: 1 });
                     else if (i === 2 && R() < 0.5) sp = utPickSpecial({ icono: 1, leyenda: 1, heroe: 2 });
                 } else {      // premium
                     f = p => p.base >= 82; ver = 'raro';
-                    if (i === 0) sp = utPickSpecial({ icono: 30, leyenda: 35, heroe: 35 });
+                    if (i === 0) sp = utPickSpecial({ icono: 15, leyenda: 30, heroe: 55 });
                     else if (i === 1 && R() < 0.35) sp = utPickSpecial({ icono: 1, leyenda: 1, heroe: 2 });
                     else if (i === 4 && R() < 0.15) sp = utPickSpecial({ icono: 1, leyenda: 1, heroe: 1 });
                 }
@@ -8079,6 +8098,8 @@
                 '🎮 Nuevo menú principal estilo FIFA: pestañas Inicio, Jugar, Online, Novedades y Ajustes, tarjetas con fotos y un partido sugerido en Partida rápida.',
                 '⌨️ En PC el menú se maneja con el teclado: flechas para moverse, Enter para entrar y Q / E para cambiar de pestaña.',
                 '🖱️ PC: las pestañas de Ultimate Team y las formaciones ya no quedan escondidas a la derecha.',
+                '🎁 Sobres más difíciles: mientras más media tiene una carta, menos probable es que te salga. Los Íconos de 95+ ahora hay que buscarlos de verdad.',
+                '🏆 Torneos en celular: los 3 torneos se ven lado a lado.',
                 '🎮 La ventana de Controles ahora aparece centrada (antes se salía de la pantalla en PC).',
                 '📱 Celular horizontal: el menú de pausa muestra todos sus botones; en iPhone se oculta el botón de pantalla completa, que Safari no permite.'] },
             { v: 'Beta 2.0 · 25 de octubre (noche)', tag: 'NUEVO', items: [
