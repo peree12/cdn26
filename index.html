@@ -1268,6 +1268,38 @@
         @media (pointer: coarse) { body.in-match [class*="backdrop-blur"], body.in-match .touch-btn, body.in-match #hud-bar { backdrop-filter: none !important; -webkit-backdrop-filter: none !important; } }
 
 
+        /* Cartas de evento: Edición Navidad (blanca con degradado celeste) y GEN 26 (verde con degradado blanco) */
+        .utc.t-navidad { background: linear-gradient(165deg, #ffffff 0%, #f0f9ff 38%, #bae6fd 70%, #38bdf8 100%); color: #0c4a6e; }
+        .utc.t-navidad::after { content: '❄'; position: absolute; left: calc(6px * var(--s)); bottom: calc(14px * var(--s)); font-size: 1.5em; color: rgba(14,165,233,.45); pointer-events: none; }
+        .utc.t-navidad .utc-tag { background: #0ea5e9; color: #fff; }
+        .utc.t-navidad .utc-name { border-color: rgba(12,74,110,.2); }
+        .utc.t-gen26 { background: linear-gradient(165deg, #15803d 0%, #22c55e 32%, #bbf7d0 62%, #ffffff 100%); color: #052e16; animation: utGen 2.6s ease-in-out infinite alternate; }
+        .utc.t-gen26 .utc-top { color: #fff; text-shadow: 0 1px 2px rgba(0,0,0,.45); }
+        .utc.t-gen26 .utc-tag { background: #14532d; color: #fff; }
+        .utc.t-gen26::after { content: '🎓'; position: absolute; left: calc(5px * var(--s)); bottom: calc(14px * var(--s)); font-size: 1.2em; pointer-events: none; }
+        @keyframes utGen { from { filter: brightness(1); } to { filter: brightness(1.12) saturate(1.15); } }
+        .up-stage.walk.v-navidad .up-rays { background: repeating-conic-gradient(rgba(186,230,253,.35) 0 8deg, transparent 8deg 20deg); }
+        .up-stage.walk.v-gen26 .up-rays { background: repeating-conic-gradient(rgba(74,222,128,.32) 0 8deg, transparent 8deg 20deg); }
+        .p-navidad .ut-pk-art { background: linear-gradient(160deg, #ffffff, #e0f2fe 45%, #38bdf8) !important; color: #0c4a6e !important; }
+        .p-gen26 .ut-pk-art { background: linear-gradient(160deg, #15803d, #22c55e 45%, #ffffff) !important; color: #052e16 !important; }
+        .p-gen26 { outline: 3px solid #22c55e; } .p-navidad { outline: 3px solid #7dd3fc; }
+        #ui-layer .ut-ev.ev-gen26 { background: linear-gradient(135deg, #dcfce7, #fff 70%) !important; border-left-color: #16a34a !important; }
+
+        /* ===== Mandos en los menús ===== */
+        body.pad-nav :focus { outline: 4px solid var(--cy, #2ee6e6) !important; outline-offset: 2px; box-shadow: 0 0 0 8px rgba(46,230,230,.28) !important; position: relative; z-index: 2; }
+        body.pad-nav .fm-t:focus { transform: translateY(-4px) scale(1.015); outline-offset: 0; }
+        body.pad-nav .fm-tab:focus { background: #d9fbfb; }
+        body.pad-nav select:focus { background: #e9fdfd !important; }
+        #pad-hints { position: fixed; left: 50%; bottom: max(10px, env(safe-area-inset-bottom)); transform: translateX(-50%); z-index: 120; display: none; align-items: center; gap: 14px; padding: 7px 16px 7px 12px; background: rgba(29,34,48,.92); color: #fff; font: 700 12px Inter, sans-serif; white-space: nowrap; clip-path: polygon(10px 0, 100% 0, calc(100% - 10px) 100%, 0 100%); box-shadow: 0 8px 24px rgba(0,0,0,.25); pointer-events: none; }
+        body.pad-on:not(.in-match) #pad-hints { display: flex; }
+        #pad-hints span { display: inline-flex; align-items: center; gap: 6px; }
+        #pad-hints i { font-style: normal; display: inline-flex; align-items: center; justify-content: center; min-width: 22px; height: 22px; padding: 0 5px; border-radius: 11px; background: #fff; color: #1d2230; font: 800 11px Inter, sans-serif; }
+        #pad-hints i.a { background: #10b981; color: #fff; } #pad-hints i.b { background: #ef4444; color: #fff; } #pad-hints i.y { background: #f5c400; color: #1d2230; }
+        body[data-pad="ps"] #pad-hints i.a { background: #3b82f6; } body[data-pad="ps"] #pad-hints i.b { background: #ef4444; } body[data-pad="ps"] #pad-hints i.y { background: #10b981; color: #fff; }
+        #pad-hints .ps { display: none; } body[data-pad="ps"] #pad-hints .ps { display: inline; } body[data-pad="ps"] #pad-hints .xb { display: none; }
+        body.pad-on .fm-hint { display: none !important; }
+        @media (max-width: 640px) { #pad-hints { gap: 9px; font-size: 10px; } #pad-hints .lbl-scroll { display: none; } }
+
         /* ===== Tema FIFA para todo el juego ===== */
         :root { --pk: #ff2d6f; --cy: #2ee6e6; --yl: #f5e52a; --ink: #1d2230; --acc: #ff2d6f; --s1: #2ee6e6; --s2: #ff2d6f; --s3: #f5e52a; --wm: 'C26'; }
         body[data-sec="setup"]   { --acc: #10b981; --s1: #34d399; --s2: #f5e52a; --s3: #0ea5e9; }
@@ -2121,6 +2153,13 @@
     <div id="subs-panel" class="hidden"><div class="pm-card subs-card"><div class="pm-title">SUSTITUCIONES</div><div id="subs-body"></div></div></div>
 
     <!-- MENÚ DE PAUSA -->
+    <div id="pad-hints" aria-hidden="true">
+        <span><i class="a"><b class="xb">A</b><b class="ps">✕</b></i>Elegir</span>
+        <span><i class="b"><b class="xb">B</b><b class="ps">◯</b></i>Volver</span>
+        <span><i><b class="xb">LB</b><b class="ps">L1</b></i><i><b class="xb">RB</b><b class="ps">R1</b></i>Pestañas</span>
+        <span class="lbl-scroll"><i>◉</i>Desplazar</span>
+        <span class="lbl-scroll"><i class="y"><b class="xb">Y</b><b class="ps">△</b></i>Ajustes</span>
+    </div>
     <div id="pause-menu" class="hidden">
         <div class="pm-card">
             <div class="pm-title">PAUSA</div>
@@ -5547,12 +5586,69 @@
             t.textContent = msg; t.classList.add('show');
             clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove('show'), 3200);
         }
-        function padVisibleFocusables() {
-            const root = ['#account-panel', '#tour-pens', '#tour-draw', '#career-modal', '#colors-panel', '#settings-panel', '#pause-menu', '#halftime-panel', '#modal-controls']
-                .map(s => document.querySelector(s)).find(el => el && !el.classList.contains('hidden') && getComputedStyle(el).display !== 'none')
+        const PAD_ROOTS = ['#ut-pack', '#tour-pens', '#tour-draw', '#trophy-anim', '#career-modal', '#adm-panel', '#account-panel', '#install-panel', '#tut-panel', '#notes-panel', '#colors-panel', '#settings-panel', '#sim-modal', '#subs-panel', '#pause-menu', '#halftime-panel', '#modal-controls'];
+        function padRoot() {
+            return PAD_ROOTS.map(s => document.querySelector(s)).find(el => el && !el.classList.contains('hidden') && getComputedStyle(el).display !== 'none' && (el.id !== 'ut-pack' || el.innerHTML.trim()) || (el && el.id === 'ut-pack' && !el.classList.contains('hidden') && el.innerHTML.trim()))
                 || document.getElementById('ui-layer');
-            return [...root.querySelectorAll('button, select, input, [data-c], [data-t], .tr-card, .tr-team')]
-                .filter(el => !el.disabled && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden');
+        }
+        const PAD_BACK = '[data-x=close], [data-tt=close], [data-nt=close], [data-in=close], [data-ac=close], [data-adm=close], [data-adm=back], #btn-back-main, #btn-back-setup, [data-c=back], [data-c=home], [data-t=home], [data-tr=back], [data-tr=x], [data-on=back], [data-on=cancel], #btn-close-controls, #colors-close, #set-close, #net-m-back, #up-skip, #up-ok, #tw-ok, #tp-ok, #td-skip, #tp-skip';
+        function padBack() {
+            if (typeof fmVisible === 'function' && fmVisible() && padRoot().id === 'ui-layer') { if (fmTab !== 'inicio') { fmSetTab('inicio', true); return true; } return false; }
+            const els = padVisibleFocusables();
+            const b = els.find(el => el.matches(PAD_BACK)) || els.find(el => /^\s*(←|✕|×|✖|Volver|Cerrar)/.test(el.textContent || ''));
+            if (b) { b.click(); return true; }
+            return false;
+        }
+        function padTabs(d) {
+            if (typeof fmVisible === 'function' && fmVisible() && padRoot().id === 'ui-layer') {
+                const tabs = [...document.querySelectorAll('#menu-main .fm-tab')].map(b => b.dataset.tab);
+                fmSetTab(tabs[(tabs.indexOf(fmTab) + d + tabs.length) % tabs.length], true); return;
+            }
+            const root = padRoot();
+            for (const sel of ['.ut-tabs button', '.tr-tab', '.on-views button', '.time-btn', '.mode-btn']) {
+                const L = [...root.querySelectorAll(sel)].filter(el => el.offsetParent !== null && !el.disabled);
+                if (L.length < 2) continue;
+                let i = L.findIndex(el => el.classList.contains('sel') || el.classList.contains('active') || el.classList.contains('on'));
+                const n = L[(Math.max(0, i) + d + L.length) % L.length];
+                n.click();
+                setTimeout(() => { const again = [...padRoot().querySelectorAll(sel)].find(el => el.textContent === n.textContent); if (again) { again.focus({ preventScroll: true }); again.scrollIntoView({ block: 'nearest', inline: 'nearest' }); } }, 30);
+                return;
+            }
+        }
+        function padAdjust(el, d) {          // izquierda/derecha sobre listas desplegables y barras
+            if (el.tagName === 'SELECT') {
+                const opts = [...el.options].filter(o => !o.disabled); if (!opts.length) return true;
+                const i = opts.findIndex(o => o.value === el.value);
+                el.value = opts[(i + d + opts.length) % opts.length].value;
+                el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); return true;
+            }
+            if (el.tagName === 'INPUT' && el.type === 'range') {
+                const st = +el.step || 1; el.value = Math.min(+el.max || 100, Math.max(+el.min || 0, +el.value + d * st * Math.max(1, Math.round(((+el.max || 100) - (+el.min || 0)) / st / 20))));
+                el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); return true;
+            }
+            if (el.tagName === 'INPUT' && el.type === 'number') { el.value = (+el.value || 0) + d; el.dispatchEvent(new Event('input', { bubbles: true })); el.dispatchEvent(new Event('change', { bubbles: true })); return true; }
+            return false;
+        }
+        let padSig = '', padHeld = false;
+        function padAutoFocus() {           // al cambiar de pantalla, el primer botón queda marcado
+            const root = padRoot();
+            const vis = ['menu-main', 'menu-setup', 'menu-lineup', 'menu-results', 'menu-tour', 'menu-career', 'menu-online'].find(id => { const e = document.getElementById(id); return e && !e.classList.contains('hidden'); }) || '';
+            const sig = root.id + '|' + vis + '|' + (typeof fmTab !== 'undefined' ? fmTab : '') + '|' + (typeof net !== 'undefined' ? net.view : '');
+            if (sig === padSig) return;
+            padSig = sig;
+            const cur = document.activeElement;
+            if (cur && cur !== document.body && root.contains(cur) && cur.offsetParent !== null) return;
+            setTimeout(() => {
+                let t = null;
+                if (root.id === 'ui-layer' && vis === 'menu-main') t = document.querySelector('#menu-main .fm-page.on [data-nav]');
+                if (!t) { const els = padVisibleFocusables(); t = els.find(el => !el.matches(PAD_BACK) && !/^\s*(←|✕|×)/.test(el.textContent || '')) || els[0]; }
+                if (t) { if (!t.hasAttribute('tabindex') && !/^(BUTTON|SELECT|INPUT|A|TEXTAREA)$/.test(t.tagName)) t.setAttribute('tabindex', '-1'); t.focus({ preventScroll: true }); t.scrollIntoView({ block: 'nearest' }); document.body.classList.add('pad-nav'); }
+            }, 60);
+        }
+        function padVisibleFocusables() {
+            const root = padRoot();
+            return [...root.querySelectorAll('button, select, input:not([type=hidden]), textarea, a[href], [data-c], [data-t], [data-ut], [data-on], [data-tr], [data-nt], [data-in], [data-ac], [data-adm], [data-tt], [data-sc], [data-pick], [data-mid], .tr-card, .tr-team')]
+                .filter(el => !el.disabled && el.offsetParent !== null && getComputedStyle(el).visibility !== 'hidden' && !(el.parentElement && el.parentElement.closest('button, [data-ut], [data-on], [data-c], [data-t], [data-tr]')));
         }
         function padMoveFocus(dir) {
             const els = padVisibleFocusables(); if (!els.length) return;
@@ -5574,7 +5670,7 @@
         function pollPads(dt) {
             const pads = padList();
             if (pads.length !== padCount) {
-                if (pads.length > padCount) { const g = pads[pads.length - 1]; const ty = padType(g.id); padToast(`🎮 Control conectado: ${ty === 'ps' ? 'PlayStation' : ty === 'xbox' ? 'Xbox' : 'genérico'}${pads.length > 1 ? ' (jugador ' + pads.length + ')' : ''}`); }
+                if (pads.length > padCount) { const g = pads[pads.length - 1]; const ty = padType(g.id); document.body.dataset.pad = ty; padSig = ''; padToast(`🎮 Control conectado: ${ty === 'ps' ? 'PlayStation' : ty === 'xbox' ? 'Xbox' : 'genérico'}${pads.length > 1 ? ' (jugador ' + pads.length + ')' : ''}`); }
                 else padToast('🎮 Control desconectado');
                 padCount = pads.length;
                 document.body.classList.toggle('pad-on', padCount > 0);
@@ -5609,24 +5705,40 @@
                 // Menús: cruceta o stick para moverse, A/✕ para elegir, B/◯ para volver
                 if (!inMatch && i === 0) {
                     const splash = document.getElementById('splash');
-                    if (splash && splash.offsetParent !== null && pads.length && [0, 1, 2, 3, 9].some(edge)) splash.click();
+                    if (splash && !window.__cdnEntered && splash.style.display !== 'none' && pads.length && [0, 1, 2, 3, 9].some(edge)) { splash.click(); for (let n = 0; n < g.buttons.length; n++) prev[n] = btn(n); padNavCooldown = 0.4; continue; }
+                    if (splash && !window.__cdnEntered && splash.style.display !== 'none') { for (let n = 0; n < g.buttons.length; n++) prev[n] = btn(n); padNavCooldown = 0.4; continue; }
+                    if (pads.length) padAutoFocus();
                     let dir = null;
                     if (btn(12) || ay < -0.6) dir = 'up'; else if (btn(13) || ay > 0.6) dir = 'down'; else if (btn(14) || ax < -0.6) dir = 'left'; else if (btn(15) || ax > 0.6) dir = 'right';
-                    if (dir && padNavCooldown <= 0) { padMoveFocus(dir); padNavCooldown = 0.18; }
-                    if (!dir) padNavCooldown = Math.min(padNavCooldown, 0.02);
-                    if (edge(0)) { const el = document.activeElement; if (el && el !== document.body && padVisibleFocusables().includes(el)) el.click(); else padMoveFocus('down'); }
+                    if (dir && padNavCooldown <= 0) {
+                        const el = document.activeElement;
+                        document.body.classList.add('pad-nav');
+                        if (!((dir === 'left' || dir === 'right') && el && el !== document.body && padAdjust(el, dir === 'right' ? 1 : -1))) padMoveFocus(dir);
+                        padNavCooldown = padHeld ? 0.085 : 0.26; padHeld = true;      // mantener apretado: avanza más rápido
+                    }
+                    if (!dir) { padNavCooldown = Math.min(padNavCooldown, 0.02); padHeld = false; }
+                    if (edge(0)) {
+                        const el = document.activeElement;
+                        document.body.classList.add('pad-nav');
+                        if (el && el !== document.body && padVisibleFocusables().includes(el)) { el.click(); rumble(0, 0.25, 40); padSig = ''; }
+                        else padMoveFocus('down');
+                    }
                     if (edge(1)) {
                         if (gameState === 'PAUSED') resumeGame();
-                        else {
-                            const back = padVisibleFocusables().find(el => el.matches('[data-x=close], #btn-back-main, #btn-back-setup, [data-c=home], [data-t=home], #btn-close-controls, #btn-ok-controls, #td-skip, #tp-skip'));
-                            if (back) back.click();
-                        }
+                        else if (padBack()) { rumble(0, 0.15, 30); padSig = ''; }
                     }
+                    if (edge(4) || edge(5)) { padTabs(edge(5) ? 1 : -1); padSig = ''; }
+                    if (edge(3)) { const s = document.getElementById('btn-settings-main'); if (typeof fmVisible === 'function' && fmVisible() && padRoot().id === 'ui-layer' && s) s.click(); }
+                    // stick derecho (o el que no mueve): desplazar la pantalla
+                    const sy = g.axes[right ? 1 : 3] || 0;
+                    if (Math.abs(sy) > 0.25) { const r = padRoot(); const sc = (r.id === 'ui-layer' ? r : (r.scrollHeight > r.clientHeight ? r : r.firstElementChild || r)); sc.scrollTop += sy * 1100 * dt; }
                 }
                 for (let n = 0; n < g.buttons.length; n++) prev[n] = btn(n);
             }
         }
         window.addEventListener('gamepadconnected', () => pollPads(0));
+        (() => { let mx = -1, my = -1; window.addEventListener('mousemove', (e) => { if (mx >= 0 && Math.hypot(e.clientX - mx, e.clientY - my) > 12) document.body.classList.remove('pad-nav'); mx = e.clientX; my = e.clientY; }, { passive: true });
+            window.addEventListener('touchstart', () => document.body.classList.remove('pad-nav'), { passive: true }); })();
         window.addEventListener('gamepaddisconnected', () => pollPads(0));
         // --- MOUSE en PC: apuntar con el cursor · clic izq = pase · clic der = tiro · rueda (clic) = filtrado ---
         const mouseAim = { x: 0, y: 0, t: 0 };
@@ -7103,8 +7215,13 @@
         const UT_KEY = 'cdn26_ut';
         const UT_VERS = {
             base: { n: '', b: 0, m: 1 }, raro: { n: 'RARO', b: 1, m: 1.7 }, heroe: { n: 'HÉROE', b: 3, m: 3.2 },
-            icono: { n: 'ÍCONO', b: 5, m: 6 }, leyenda: { n: 'LEYENDA', b: 7, m: 10 }
+            icono: { n: 'ÍCONO', b: 5, m: 6 }, leyenda: { n: 'LEYENDA', b: 7, m: 10 },
+            navidad: { n: 'NAVIDAD', b: 5, m: 4 }, gen26: { n: 'GEN 26', b: 4, m: 8 }
         };
+        // Edición Navidad: todos los jugadores, +5 de media · GEN 26: Valpo City, Real Mapuche, Distrito LMJ y Chenik FC, +4 (exclusiva y limitada)
+        const GEN26_TEAMS = ['valpo', 'mapuche', 'lmj', 'chenik'];
+        const utMD = () => { const n = new Date(); return (n.getMonth() + 1) * 100 + n.getDate(); };
+        const gen26On = () => { const md = utMD(); return md >= 1101 && md <= 1121; };          // primeras tres semanas de noviembre
         // Cartas especiales oficiales (según la lista "Posiciones y Dorsales"): SOLO estos jugadores tienen Héroe, Leyenda o Ícono, con esa media exacta
         const UT_SPECIAL = {
             'lmj|Cesar Rodriguez': { icono: 92 }, 'lmj|Andrés Pérez': { heroe: 81 }, 'lmj|Santiago Hidalgo': { icono: 91 }, 'lmj|Alonso Fuentes': { icono: 91 },
@@ -7136,6 +7253,8 @@
             portero: { n: 'Sobre Arqueros', price: 2500, cards: 3, desc: '3 porteros', odds: 'Normales y raros' },
             evento: { n: 'Sobre Evento', price: 8000, cards: 5, desc: '5 jugadores · 1 Héroe o mejor asegurado', odds: 'Solo esta semana' },
             premium: { n: 'Sobre Premium', price: 18000, cards: 5, desc: '5 jugadores de media alta · 1 Héroe, Leyenda o Ícono asegurado', odds: '35% de un 2º especial · Ícono 15% · las de más media son muy raras' },
+            navidad: { n: 'Sobre Navidad', price: 30000, cards: 5, desc: '5 jugadores · 2 cartas Edición Navidad aseguradas (+5 de media)', odds: 'Solo durante el evento de Navidad · todos los jugadores' },
+            gen26: { n: 'Sobre GEN 26', price: 45000, cards: 5, desc: 'Jugadores de Valpo City, Real Mapuche, Distrito LMJ y Chenik FC · 2 cartas GEN 26 aseguradas', odds: 'Exclusivo y limitado: 1 al 21 de noviembre' },
             heroe: { n: 'Sobre Élite', price: 40000, cards: 5, desc: '5 jugadores · 2 especiales asegurados', odds: '1º especial: Ícono 25% · Leyenda 35% · las de más media son muy raras' }
         };
         const UT_CPU = [
@@ -7220,7 +7339,7 @@
         }
         const round50 = (x) => Math.max(50, Math.round(x / 50) * 50);
         // Valor de cada carta: según su media real, su versión y sus 6 estadísticas (dos cartas con la misma media valen distinto)
-        const UT_PRICE_M = { base: 1, raro: 1.3, heroe: 2.2, leyenda: 3.2, icono: 3.8 };
+        const UT_PRICE_M = { base: 1, raro: 1.3, heroe: 2.2, leyenda: 3.2, icono: 3.8, navidad: 2.6, gen26: 4.2 };
         function utPrice(c) {
             const i = utInfo(c); if (!i) return 0;
             const sum = i.stats.reduce((a, [v]) => a + v, 0), avg = sum / 6;
@@ -7296,7 +7415,7 @@
                 const i = infos[k]; if (!i) return 0;
                 const inPos = k === 0 ? !!i.gk : (!i.gk && posGroup(i.pos) === s);
                 if (!inPos) return 0;
-                if (i.ver === 'icono' || i.ver === 'leyenda' || i.exclusive) return 3;
+                if (i.ver === 'icono' || i.ver === 'leyenda' || i.ver === 'gen26' || i.exclusive) return 3;
                 const club = infos.filter((j, n) => j && n !== k && j.team === i.team).length;
                 const nat = infos.filter((j, n) => j && n !== k && j.nat === i.nat).length;
                 return Math.min(3, 1 + (club >= 1 ? 1 : 0) + (club >= 2 ? 1 : 0) + (nat >= 3 ? 1 : 0));
@@ -7324,7 +7443,23 @@
         // --- Sobres ---
         function utOpenPack(type) {
             const P = UT_PACKS[type]; if (!P) return null;
+            if (typeof utPackOn === 'function' && !utPackOn(type)) return null;
             if (ut.coins < P.price) return null;
+            if (type === 'navidad' || type === 'gen26') {
+                ut.coins -= P.price; ut.packs = (ut.packs || 0) + 1; utMisProg({ packs: 1 });
+                const base = utActive().filter(p => type === 'navidad' || GEN26_TEAMS.includes(p.team));
+                const out = [], used = new Set();
+                for (let i = 0; i < P.cards; i++) {
+                    const sp = i < 2 || Math.random() < 0.12;
+                    const L = base.filter(p => !used.has(p.key) && (sp || p.base >= 76));
+                    const p = utWeighted(L.length ? L : base, x => x.base, sp ? 2.5 : 3.5); if (!p) continue;
+                    used.add(p.key);
+                    out.push({ id: utUid(), key: p.key, ver: sp ? type : (Math.random() < 0.35 ? 'raro' : 'base') });
+                }
+                out.sort((a, b) => utInfo(a).r - utInfo(b).r);
+                ut.cards.push(...out); saveUT();
+                return out;
+            }
             ut.coins -= P.price; ut.packs = (ut.packs || 0) + 1; utMisProg({ packs: 1 });
             const pool = utActive(), out = [];
             const pickP = (f) => utWeighted(pool.filter(f), p => p.base, 3.5);
@@ -7367,7 +7502,7 @@
                     return;
                 }
                 const c = cards[i], inf = utInfo(c), team = TEAMS.find(t => t.id === inf.team);
-                const big = inf.r >= 85 || c.ver === 'icono' || c.ver === 'leyenda' || c.ver === 'heroe';
+                const big = inf.r >= 85 || c.ver === 'icono' || c.ver === 'leyenda' || c.ver === 'heroe' || c.ver === 'navidad' || c.ver === 'gen26';
                 box.innerHTML = `<div class="up-stage ${big ? 'walk v-' + c.ver : ''}"><div class="up-rays"></div>
                     ${big ? `<div class="up-step s1"><img src="${flagSrc(inf.nat)}" alt=""></div><div class="up-step s2">${inf.pos}</div><div class="up-step s3"><img src="${team && team.logo || CDN_CREST()}" alt=""></div>` : ''}
                     <div class="up-card">${utCardHTML(c, 1.5)}</div>
@@ -7465,7 +7600,7 @@
         };
         function utEvent() {
             const n = new Date(), md = (n.getMonth() + 1) * 100 + n.getDate(), E = UT_EVENTS, inR = (a, b) => md >= a && md <= b;
-            if (inR(1220, 1226)) return E.navidad; if (inR(1227, 1231) || inR(101, 102)) return E.anio; if (inR(1025, 1101)) return E.halloween; if (inR(914, 920)) return E.patrias;
+            if (inR(1102, 1226)) return E.navidad; if (inR(1227, 1231) || inR(101, 102)) return E.anio; if (inR(1025, 1101)) return E.halloween; if (inR(914, 920)) return E.patrias;
             const rot = [E.mundial, E.verano, E.neon]; return rot[utWeek() % rot.length];
         }
         function applyEventTheme() {
@@ -7490,7 +7625,15 @@
             if (!fx) { fx = document.createElement('div'); fx.id = 'ev-fx'; document.body.appendChild(fx); }
             fx.innerHTML = Array.from({ length: 9 }, (_, i) => `<i style="left:${(i * 11 + 4) % 96}%;animation-duration:${11 + (i * 3) % 9}s;animation-delay:${-(i * 2.3)}s">${ev.fx[i % ev.fx.length]}</i>`).join('');
         }
-        const utEventBanner = () => { const ev = utEvent(); return `<div class="ut-ev"><span>${ev.icon}</span><div><b>${ev.n}</b><small>+${ev.bonus}% de monedas por victoria · Sobre ${ev.short} en la pestaña Sobres</small></div></div>`; };
+        const utEventBanner = () => { const ev = utEvent(); return `<div class="ut-ev"><span>${ev.icon}</span><div><b>${ev.n}</b><small>+${ev.bonus}% de monedas por victoria · Sobre ${ev.short} en la pestaña Sobres${ev === UT_EVENTS.navidad ? ' · cartas Edición Navidad (+5)' : ''}</small></div></div>`
+            + (gen26On() ? `<div class="ut-ev ev-gen26"><span>🎓</span><div><b>GEN 26 · Despedida</b><small>Cartas exclusivas de los que se van del colegio · Sobre GEN 26 hasta el 21 de noviembre</small></div></div>` : ''); };
+        // Qué sobres se pueden comprar hoy
+        function utPackOn(k) {
+            if (k === 'navidad') return utEvent() === UT_EVENTS.navidad;
+            if (k === 'evento') return utEvent() !== UT_EVENTS.navidad;          // en Navidad lo reemplaza el Sobre Navidad
+            if (k === 'gen26') return gen26On();
+            return true;
+        }
         // Ranking global (tabla ut_ranking en Supabase) con puntos = 3 por victoria + 1 por empate
         const utPts = () => ut.rec.w * 3 + ut.rec.d;
         let utRank = { rows: [], t: 0, err: '' };
@@ -7587,7 +7730,7 @@
                     <div class="ut-mon ${new Date().getDay() === 1 ? 'on' : ''}">🧤 ${new Date().getDay() === 1 ? '<b>¡Hoy es lunes!</b> Agustín Vilches · Ícono 99 · exclusivo por 50.000 🪙' : 'Cada <b>lunes</b> llega a la tienda Agustín Vilches · Ícono 99 · exclusivo por 50.000 🪙'}</div>
                     <div class="ut-grid">${utShop().map(it => { const own = bought.includes(it.i); return `<div class="ut-item">${utCardHTML(it, 0.9)}<button class="tr-btn ${own ? '' : 'gold'}" data-ut="buy" data-i="${it.i}" ${own || ut.coins < it.price ? 'disabled' : ''}>${own ? '✔ Comprado' : '🪙 ' + fmtCoins(it.price)}</button></div>`; }).join('')}</div>`;
             } else if (utTab === 'sobres') {
-                body = `<div class="ut-grid packs">${Object.entries(UT_PACKS).map(([k, P]) => `<div class="ut-pack p-${k}"><div class="ut-pk-art"><span>CDN</span><b>${P.n.replace('Sobre ', '').toUpperCase()}</b></div>
+                body = `<div class="ut-grid packs">${Object.entries(UT_PACKS).filter(([k]) => utPackOn(k)).sort(([a], [b]) => (b === 'gen26') - (a === 'gen26') || (b === 'navidad') - (a === 'navidad')).map(([k, P]) => `<div class="ut-pack p-${k}"><div class="ut-pk-art"><span>CDN</span><b>${P.n.replace('Sobre ', '').toUpperCase()}</b></div>
                     <b>${P.n}</b><small>${P.desc}</small><small class="odds">${P.odds}</small><button class="tr-btn gold" data-ut="pack" data-k="${k}" ${ut.coins < P.price ? 'disabled' : ''}>🪙 ${fmtCoins(P.price)}</button></div>`).join('')}</div>`;
             } else if (utTab === 'misiones') {
                 body = utMisHTML();
@@ -7928,7 +8071,7 @@
             const P = utPool(); return Object.values(P.byKey).sort((a, b) => a.name.localeCompare(b.name) || String(a.team).localeCompare(String(b.team)));
         };
         // Catálogo completo: cada jugador en cada versión que existe (incluye retirados, exclusivos y solo-UT)
-        const admCatalog = () => admAllPlayers().flatMap(p => utVersFor(p).map(ver => ({ key: p.key, ver, name: p.name, team: p.team, retired: !!p.retired, r: utVerR(p, ver) })));
+        const admCatalog = () => admAllPlayers().flatMap(p => [...utVersFor(p), ...(p.onlyVer || p.retired ? [] : ['navidad', ...(GEN26_TEAMS.includes(p.team) ? ['gen26'] : [])])].map(ver => ({ key: p.key, ver, name: p.name, team: p.team, retired: !!p.retired, r: utVerR(p, ver) })));
         function admTake(list) {
             if (!ut) { utNewClub(); }
             list.forEach(x => ut.cards.push({ id: utUid(), key: x.key, ver: x.ver }));
@@ -7951,7 +8094,7 @@
                 const pending = adm.selOps.filter(o => !U || !(U.admDone || []).includes(o.id));
                 const all = admAllPlayers(), sel = utPool().byKey[adm.addKey] || all[0];
                 if (sel && !adm.addKey) adm.addKey = sel.key;
-                const vers = sel ? utVersFor(sel) : ['base'];
+                const vers = sel ? [...utVersFor(sel), ...(sel.onlyVer ? [] : ['navidad', ...(GEN26_TEAMS.includes(sel.team) ? ['gen26'] : [])])] : ['base'];
                 if (!vers.includes(adm.addVer)) adm.addVer = vers[0];
                 const cards = U && Array.isArray(U.cards) ? U.cards.map(c => ({ c, i: utInfo(c) })).filter(x => x.i).sort((a, b) => b.i.r - a.i.r) : [];
                 body = `<button class="tr-btn" data-adm="back">← Volver a la lista</button>
@@ -8100,6 +8243,11 @@
                 '🖱️ PC: las pestañas de Ultimate Team y las formaciones ya no quedan escondidas a la derecha.',
                 '🎁 Sobres más difíciles: mientras más media tiene una carta, menos probable es que te salga. Los Íconos de 95+ ahora hay que buscarlos de verdad.',
                 '🏆 Torneos en celular: los 3 torneos se ven lado a lado.',
+                '🕹️ Mandos en todos los menús: cruceta o stick para moverse, A/✕ elegir, B/◯ volver, LB/RB (L1/R1) cambiar de pestaña, stick derecho para desplazar y ayuda de botones en pantalla.',
+                '⚽ Ultimate Team y salas online: el saque inicial y el de después de cada gol es un pase automático hacia atrás a un compañero.',
+                '🏃 Pase filtrado: el compañero más adelantado se desmarca hacia el área para recibirlo; el equipo aliado se ordena mejor (uno ofrece el pase corto y otro queda de apoyo atrás).',
+                '🎄 Evento de Navidad desde el 2 de noviembre (justo después de Halloween): cartas Edición Navidad de todos los jugadores con +5 de media (blancas con celeste) en el Sobre Navidad de 30.000 monedas.',
+                '🎓 GEN 26 (1 al 21 de noviembre): Sobre GEN 26 de 45.000 monedas con cartas exclusivas y limitadas (verdes con blanco) de Valpo City, Real Mapuche, Distrito LMJ y Chenik FC, para despedir a los que se van del colegio.',
                 '🎮 La ventana de Controles ahora aparece centrada (antes se salía de la pantalla en PC).',
                 '📱 Celular horizontal: el menú de pausa muestra todos sus botones; en iPhone se oculta el botón de pantalla completa, que Safari no permite.'] },
             { v: 'Beta 2.0 · 25 de octubre (noche)', tag: 'NUEVO', items: [
@@ -9639,9 +9787,9 @@
             mates(p).forEach(m => {
                 if (m.isGK || m.stun > 0) return;
                 const cos = Math.cos(Math.atan2(m.y - p.y, m.x - p.x) - facing);
-                if (cos < 0.15) return;
+                if (cos < (m._run ? -0.2 : 0.15)) return;
                 const ahead = (m.x - p.x) * p.dir;
-                const score = ahead * 0.9 + cos * 140 - dist(p, m) * 0.12;
+                const score = ahead * 0.9 + cos * 140 - dist(p, m) * 0.12 + (m._run ? 170 : 0);
                 if (!best || score > best.score) best = { p: m, score };
             });
             if (!best) { kickBall(p, facing, 13, false); return; }
@@ -9837,6 +9985,7 @@
             const field = team.filter(q => !q.isGK);
             const roles = new Map();
             const hasBall = ball.holder && ball.holder.isHome === isHome;
+            team.forEach(q => { q._run = false; });
             const oppHasBall = ball.holder && ball.holder.isHome !== isHome;
             const predicted = {
                 x: clamp(ball.x + ball.vx * 10, FIELD.minX, FIELD.maxX),
@@ -9845,7 +9994,15 @@
             if (hasBall) {
                 field.forEach(q => roles.set(q, q === ball.holder ? 'holder' : 'support'));
                 // tiki-taka: los dos compañeros más cercanos al que lleva el balón se le acercan en diagonal para ofrecer el pase corto
-                field.filter(q => q !== ball.holder && q.stun <= 0).sort((a, b) => dist(a, ball.holder) - dist(b, ball.holder)).slice(0, 2).forEach((q, i) => { roles.set(q, 'link'); q._linkIdx = i; });
+                const h = ball.holder, others = field.filter(q => q !== h && q.stun <= 0);
+                const depthOf = q => (q.x - q.ownGoalX) * q.dir;
+                let runner = null;
+                if (!kickoff.active && depthOf(h) > pitch.width * 0.32 && others.length >= 2) {
+                    runner = others.slice().sort((a, b) => depthOf(b) - depthOf(a))[0];
+                    roles.set(runner, 'run');
+                }
+                team.forEach(q => { q._run = q === runner; });
+                others.filter(q => q !== runner).sort((a, b) => dist(a, h) - dist(b, h)).slice(0, 2).forEach((q, i) => { roles.set(q, 'link'); q._linkIdx = i; });
                 return { roles, predicted };
             }
             if (ball.passTarget && ball.passTarget.isHome === isHome) {
@@ -9902,9 +10059,22 @@
                 steer(p, f0.x, f0.y, 0.8, k);
                 return;
             }
+            if (role === 'run' && ball.holder) {
+                // desmarque al área: primero se adelanta por su carril y después entra en diagonal al punto penal
+                const h = ball.holder, gx = p.oppGoalX;
+                const side = h.y < MID_Y ? 1 : -1;                      // por el lado contrario al balón
+                const ahead = (p.x - h.x) * p.dir;
+                let tx = ahead < 70 ? h.x + p.dir * 150 : gx - p.dir * 135;
+                if ((tx - gx) * p.dir > -85) tx = gx - p.dir * 85;
+                let ty = ahead < 70 ? MID_Y + side * 120 : MID_Y + side * 45;
+                tx = clamp(tx, FIELD.minX + 45, FIELD.maxX - 45); ty = clamp(ty, FIELD.minY + 35, FIELD.maxY - 35);
+                steer(p, tx, ty, 0.99, k, 0.3);
+                return;
+            }
             if (role === 'link' && ball.holder) {
                 const h = ball.holder, base = p.dir > 0 ? 0 : Math.PI;
                 let off = (p._linkIdx ? -0.95 : 0.95); if (h.y < FIELD.minY + 120) off = Math.abs(off); else if (h.y > FIELD.maxY - 120) off = -Math.abs(off);
+                if (p._linkIdx && mates(p).some(m => m._run)) off = Math.PI - off * 0.75;     // apoyo de atrás para no amontonarse
                 const ang = base + off, tx = clamp(h.x + Math.cos(ang) * 92, FIELD.minX + 45, FIELD.maxX - 45), ty = clamp(h.y + Math.sin(ang) * 92, FIELD.minY + 35, FIELD.maxY - 35);
                 steer(p, tx, ty, dist(p, { x: tx, y: ty }) > 40 ? 0.97 : 0.8, k);
                 return;
@@ -10363,6 +10533,7 @@
             kickoff.active = true;
             kickoff.taker = taker;
             kickoff.timer = 0;
+            kickoff.auto = false;
             replayBuf = [];
 
             ['home', 'away'].forEach(s => { humanSides[s].current = null; humanSides[s].switchCooldown = 0; });
@@ -10480,6 +10651,12 @@
             if (kickoff.active) {
                 kickoff.timer += dt;
                 if (!kickoff.taker || ball.holder !== kickoff.taker) kickoff.active = false;
+                // Ultimate Team y salas: el saque es un pase automático hacia atrás a un compañero
+                else if (!kickoff.auto && kickoff.timer > 1.1 && (typeof utCtx !== 'undefined' && utCtx || (typeof net !== 'undefined' && net.playing))) {
+                    const tk = kickoff.taker;
+                    const back = mates(tk).filter(m => !m.isGK && m.stun <= 0).sort((a, b) => (a.x - tk.ownGoalX) * a.dir - (b.x - tk.ownGoalX) * b.dir)[0];
+                    if (back) { kickoff.auto = true; precisePass(tk, back); }
+                }
             }
             if (!kickoff.active) gameTimer -= dt;               // el reloj parte con el pase del saque
             if (!secondHalf && gameTimer <= matchDuration / 2) {
