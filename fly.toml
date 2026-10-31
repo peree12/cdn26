@@ -4,7 +4,7 @@
 #
 
 app = 'cdn26'
-primary_region = 'ams'
+primary_region = 'gru'
 
 [build]
 
