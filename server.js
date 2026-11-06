@@ -38,11 +38,13 @@ function handleBug(req, res) {
     L.push(now); bugHits.set(ip, L);
     try { fs.appendFile(path.join(ROOT, 'bugs.log'), JSON.stringify({ t: new Date().toISOString(), msg, contact, info }) + '\n', () => {}); } catch (e) {}
     try {
+      const ac = new AbortController(); const tm = setTimeout(() => ac.abort(), 6000);
       const r = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(BUG_TO), {
-        method: 'POST',
+        method: 'POST', signal: ac.signal,
         headers: { 'content-type': 'application/json', accept: 'application/json', origin: 'https://peree12.github.io', referer: 'https://peree12.github.io/cdn26/' },
         body: JSON.stringify({ _subject: '🐞 CDN 26 · Reporte de bug', _template: 'table', _captcha: 'false', mensaje: msg, contacto: contact || '—', info })
       });
+      clearTimeout(tm);
       const j = await r.json().catch(() => ({}));
       reply(200, { ok: r.ok && String(j.success) === 'true', pending: /activ/i.test(String(j.message || '')) });
     } catch (e) { reply(200, { ok: false }); }
