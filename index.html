@@ -1325,6 +1325,10 @@
         /* Cartas repetidas */
         #ui-layer .ut-item { position: relative; }
         #ui-layer .ut-dup { position: absolute; top: 2px; right: 4px; z-index: 3; background: #e11d74; color: #fff; font: 800 11px Inter, sans-serif; padding: 2px 7px; border-radius: 9px; box-shadow: 0 2px 6px rgba(0,0,0,.3); pointer-events: none; }
+        /* Cuenta obligatoria */
+        #account-panel.gate { z-index: 120; background: radial-gradient(circle at 50% 20%, rgba(225,29,116,.25), rgba(241,243,248,.97) 60%); }
+        #account-panel .gate-txt { font-size: 13px; line-height: 1.5; color: #3f4a5c; margin: 4px 0 12px; text-align: center; }
+        #account-panel .gate-later { display: block; margin: 10px auto 0; color: #64748b; text-decoration: underline; }
         /* Mercado de transferencias */
         #ui-layer .mk-tabs { display: flex; gap: 6px; margin: 10px 0 4px; }
         #ui-layer .mk-tabs button { flex: 1; padding: 9px 8px; font: 800 13px Inter, sans-serif; letter-spacing: .04em; text-transform: uppercase; background: #eef0f3; color: #3f4a5c; border: 0; border-bottom: 3px solid transparent; cursor: pointer; }
@@ -6197,16 +6201,18 @@
                 const { data } = await sb.client.auth.getSession();
                 sb.session = data && data.session;
                 sbOnSession();
-            } catch (e) { sb.err = sbErr(e); renderAccountChip(); }
+                sb.inited = true;
+            } catch (e) { sb.err = sbErr(e) || 'sin conexión'; sb.inited = true; renderAccountChip(); }
         }
         async function sbOnSession() {
             // limpia los datos del inicio de sesión que quedan en la dirección
             try { if (/[?&](code|error)=|access_token=/.test(location.search + location.hash)) history.replaceState(null, '', location.pathname + (/sala=/.test(location.hash) ? location.hash : '')); } catch (e) {}
-            if (!sb.session) { try { adm.ok = false; const ab = document.getElementById('btn-admin'); if (ab) ab.style.display = 'none'; } catch (e) {} renderAccountChip(); if (!document.getElementById('account-panel').classList.contains('hidden')) renderAccount(); return; }
+            if (!sb.session) { if (sb.inited && window.__cdnEntered) setTimeout(sbGateCheck, 300); try { adm.ok = false; const ab = document.getElementById('btn-admin'); if (ab) ab.style.display = 'none'; } catch (e) {} renderAccountChip(); if (!document.getElementById('account-panel').classList.contains('hidden')) renderAccount(); return; }
             const u = sb.session.user || {}, md = u.user_metadata || {};
             account = { ...(account || { avatar: '⚽', fav: 'valpo', created: Date.now() }), sb: { email: u.email || '', name: md.full_name || md.name || '', picture: md.avatar_url || md.picture || '' } };
             if (!account.nick) account.nick = (md.full_name || md.name || (u.email || 'Jugador').split('@')[0]).split(' ')[0].slice(0, 18);
             accDraft = null; saveAccount();
+            if (sbGate) { sbGateEnd(); cloud.msg = '✅ ¡Listo! Ya tienes tu cuenta CDN Sports.'; }
             try { await sbSyncProfile(); await sbPullUT(); await refreshCloudSaves(); } catch (e) {}
             try { await admApplyMine(); await admCheck(); } catch (e) {}
             renderAccountChip();
@@ -6397,9 +6403,39 @@
                 <div class="ac-row" style="margin-top:6px"><button class="tr-btn pri" data-ac="gsaveid">Guardar ID</button></div></div>` : '';
             return `<div class="ac-google">${main}${note}<button class="ac-glink" data-ac="gsetup">⚙️ Configurar Google</button>${setup}</div>`;
         }
+
+        // ===== Cuenta obligatoria: al entrar sin sesión aparece la pantalla para crear la cuenta CDN Sports =====
+        let sbGate = false;
+        const sbGateOld = () => !!(career || ut || (account && account.nick));       // ya jugaba como invitado
+        function sbGateCheck() {
+            if (sbGate || sbBlockReason() || sb.session || sb.recovery) return;
+            if (!sb.inited) return setTimeout(sbGateCheck, 500);
+            if (sb.err || !sb.client || sb.session) return;                            // sin internet: se juega igual
+            sbGate = true;
+            if (!sbGateOld()) sbForm.mode = 'signup';
+            const p = document.getElementById('account-panel'); p.classList.add('gate');
+            openAccount();
+            // nada la puede cerrar (Escape, botón Atrás del mando, tocar afuera) hasta que la cuenta esté lista
+            if (!p.__gateObs) { p.__gateObs = new MutationObserver(() => { if (sbGate && !sbReady() && p.classList.contains('hidden')) { p.classList.remove('hidden'); renderAccount(); } }); p.__gateObs.observe(p, { attributes: true, attributeFilter: ['class'] }); }
+        }
+        function sbGateEnd() {
+            if (!sbGate) return;
+            sbGate = false;
+            const p = document.getElementById('account-panel'); p.classList.remove('gate');
+        }
+        function sbGateHTML() {
+            const old = sbGateOld();
+            return `<div class="ac-logo">CDN <b>SPORTS</b></div>
+                <div class="ac-h">${old ? 'Crea tu cuenta CDN Sports' : '¡Bienvenido a CDN 26!'}</div>
+                <div class="gate-txt">${old ? 'Ya no se puede jugar como invitado. Crea tu cuenta CDN Sports (o entra si ya tienes una): con ella tu progreso se guarda en la nube y puedes usar el Mercado, el ranking y jugar desde cualquier dispositivo.' : 'Para jugar necesitas una cuenta CDN Sports. Es gratis y solo toma un minuto: tu carrera, tu Ultimate Team y tus monedas quedan guardados en la nube.'}</div>
+                ${sbBlockHTML()}
+                <div class="ac-msg" id="ac-msg">${esc(cloud.msg || '')}</div>
+                <div class="gate-txt" style="font-size:11px;margin-top:10px">${old ? 'Tu progreso de este dispositivo se mantiene y se sube a tu cuenta al entrar.' : ''}</div>`;
+        }
         let accDraft = null;
         function renderAccount() {
             const box = document.getElementById('account-body'); if (!box) return;
+            if (sbGate && !sbReady() && !sb.recovery) { box.innerHTML = sbGateHTML(); return; }
             const on = cloud.status === 'online' || useGoogle() || sbReady();
             const gBlock = sbBlockHTML();
             const statusLine = sbReady()
@@ -6508,6 +6544,7 @@
                     if (v && !googleBlockReason()) loadGIS().catch(() => {});
                     renderAccount(); return;
                 }
+                if (a === 'close' && sbGate && !sbReady()) return;
                 if (a === 'close') { if (accDraft && account && account.nick) { accDraft = null; renderAccount(); return; } panel.classList.add('hidden'); return; }
                 if (a === 'edit') { accDraft = { nick: account.nick, avatar: account.avatar, fav: account.fav }; renderAccount(); return; }
                 if (a === 'create') {
@@ -8825,6 +8862,7 @@
             try { if ('serviceWorker' in navigator && location.protocol === 'https:' && !insideClaudeView()) navigator.serviceWorker.register('sw.js').catch(() => {}); } catch (e) {}
         }
 
+        (function () { const prev = window.__cdnOnEnter; window.__cdnOnEnter = function () { try { prev && prev(); } catch (e) {} setTimeout(sbGateCheck, 1200); }; })();
         // ===== Felicitación: Real Mapuche campeón de la Copa CDA 2026 (una vez por persona, hasta el lunes 9 de noviembre) =====
         (function () {
             const KEY = 'cdn26_campeon_cda26', UNTIL = new Date(2026, 10, 10, 0, 0, 0).getTime();
@@ -8866,6 +8904,7 @@
                 '🆕 Ultimate Team: Agustín Cardenas (Real Mapuche, portero) con carta normal de 79 y Héroe de 86.',
                 '🆕 Ultimate Team: Christopher Gaete (agente libre, DFC) con carta normal de 83 y Leyenda de 86.',
                 '⚡ Venta rápida de repetidas en Ultimate Team: vende de una vez todas las copias que te sobran (siempre te quedas con una).',
+                '👤 Ahora todos juegan con su cuenta CDN Sports: ya no hay modo invitado (el progreso que tenías en tu dispositivo se sube a tu cuenta al entrar).',
                 '🔑 Cuenta CDN Sports: nueva opción “¿Olvidaste tu contraseña?”.',
                 '🎵 Tres canciones nuevas en la música del menú: Luz de Chile, Menina do Pólen y una más.',
                 '💱 Nuevo Mercado de transferencias en Ultimate Team: vende tus cartas a otros jugadores poniendo tu precio y compra las que publiquen ellos (con tu cuenta iniciada). Las ventas se cobran solas, con 5% de impuesto.',
