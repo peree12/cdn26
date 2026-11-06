@@ -8259,6 +8259,7 @@
             try {
                 let key = '';
                 try { const r = await bugFetch('relay.json?v=' + Date.now(), { cache: 'no-store' }, 3000); const j = await r.json(); key = String(j.bugKey || j.web3forms || '').trim(); } catch (e) {}
+                if (!key) key = '273991c2-24ad-4f4a-8b2f-6831f1a216e9';        // clave de Web3Forms (solo sirve para enviar reportes a ese correo)
                 if (key) {
                     const r = await bugFetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' },
                         body: JSON.stringify({ access_key: key, subject: '🐞 CDN 26 · Reporte de bug', from_name: 'CDN 26 · ' + ((account && account.nick) || 'Jugador'), mensaje: msg, contacto: contact || '—', info }) }, 9000);
