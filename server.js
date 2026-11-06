@@ -1,4 +1,4 @@
-// CDN 26 · Fútbol 5 Arcade — servidor para render.com
+// CDN 26 · Fútbol 5 Arcade — servidor para render.com y fly.io
 // 1) Sirve el juego (index.html, assets/, íconos…)
 // 2) Servidor de salas online por WebSocket en /ws: reenvía los mensajes entre el anfitrión y los jugadores.
 //    Funciona con wifi y con datos móviles (no necesita conexión directa entre celulares) y aguanta cortes cortos de señal.
@@ -10,7 +10,7 @@ const { WebSocketServer } = require('ws');
 const PORT = process.env.PORT || 10000;
 const ROOT = __dirname;
 const GRACE_MS = 20000;            // si alguien pierde la señal, se le guarda el lugar 20 s
-const PRIVATE = new Set(['server.js', 'package.json', 'package-lock.json', 'render.yaml', 'node_modules', '.git', 'LEEME.txt']);
+const PRIVATE = new Set(['server.js', 'package.json', 'package-lock.json', 'render.yaml', 'fly.toml', 'Dockerfile', '.dockerignore', 'oracle', '.github', 'node_modules', '.git', 'LEEME.txt', 'supabase_admin.sql', 'supabase_mercado.sql']);
 const MIME = {
   '.html': 'text/html; charset=utf-8', '.js': 'text/javascript; charset=utf-8', '.json': 'application/json; charset=utf-8',
   '.webmanifest': 'application/manifest+json', '.css': 'text/css; charset=utf-8', '.png': 'image/png', '.jpg': 'image/jpeg',
@@ -18,9 +18,41 @@ const MIME = {
   '.mp4': 'video/mp4', '.m4a': 'audio/mp4', '.ogg': 'audio/ogg', '.wav': 'audio/wav', '.txt': 'text/plain; charset=utf-8'
 };
 
+// ---------------- Reportes de bugs: llegan al correo del desarrollador (el correo no aparece en el juego) ----------------
+const BUG_TO = process.env.BUG_EMAIL || 'andresprzmar@gmail.com';
+const bugHits = new Map();             // ip -> [tiempos]: máximo 5 reportes por hora por persona
+function handleBug(req, res) {
+  const cors = { 'access-control-allow-origin': '*', 'access-control-allow-methods': 'POST, OPTIONS', 'access-control-allow-headers': 'content-type' };
+  if (req.method === 'OPTIONS') { res.writeHead(204, cors); return res.end(); }
+  const reply = (code, o) => { res.writeHead(code, { ...cors, 'content-type': 'application/json' }); res.end(JSON.stringify(o)); };
+  if (req.method !== 'POST') return reply(405, { ok: false });
+  const ip = String(req.headers['x-forwarded-for'] || req.socket.remoteAddress || '').split(',')[0].trim();
+  const now = Date.now(), L = (bugHits.get(ip) || []).filter(t => now - t < 3600000);
+  if (L.length >= 5) return reply(429, { ok: false, err: 'limite' });
+  let body = '';
+  req.on('data', (c) => { body += c; if (body.length > 12000) { req.destroy(); } });
+  req.on('end', async () => {
+    let d; try { d = JSON.parse(body); } catch (e) { return reply(400, { ok: false }); }
+    const msg = String(d.msg || '').trim().slice(0, 3000), contact = String(d.contact || '').trim().slice(0, 120), info = String(d.info || '').slice(0, 1500);
+    if (msg.length < 5) return reply(400, { ok: false, err: 'corto' });
+    L.push(now); bugHits.set(ip, L);
+    try { fs.appendFile(path.join(ROOT, 'bugs.log'), JSON.stringify({ t: new Date().toISOString(), msg, contact, info }) + '\n', () => {}); } catch (e) {}
+    try {
+      const r = await fetch('https://formsubmit.co/ajax/' + encodeURIComponent(BUG_TO), {
+        method: 'POST',
+        headers: { 'content-type': 'application/json', accept: 'application/json', origin: 'https://peree12.github.io', referer: 'https://peree12.github.io/cdn26/' },
+        body: JSON.stringify({ _subject: '🐞 CDN 26 · Reporte de bug', _template: 'table', _captcha: 'false', mensaje: msg, contacto: contact || '—', info })
+      });
+      const j = await r.json().catch(() => ({}));
+      reply(200, { ok: r.ok && String(j.success) === 'true', pending: /activ/i.test(String(j.message || '')) });
+    } catch (e) { reply(200, { ok: false }); }
+  });
+}
+
 const server = http.createServer((req, res) => {
   let p;
   try { p = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch (e) { res.writeHead(400); return res.end(); }
+  if (p === '/bug') return handleBug(req, res);
   if (p === '/health') { res.writeHead(200, { 'content-type': 'text/plain', 'cache-control': 'no-store' }); return res.end('ok'); }
   if (p === '/relay.json') {                 // el juego pregunta dónde está el servidor de salas
     const https = String(req.headers['x-forwarded-proto'] || '').includes('https');
