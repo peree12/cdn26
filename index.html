@@ -8255,8 +8255,19 @@
                     saved = !r.error;
                 }
             } catch (e) {}
-            // 2) correo, por el servidor de salas (máximo 7 s)
+            // 2) correo con Web3Forms (la clave va en relay.json como "bugKey")
             try {
+                let key = '';
+                try { const r = await bugFetch('relay.json?v=' + Date.now(), { cache: 'no-store' }, 3000); const j = await r.json(); key = String(j.bugKey || j.web3forms || '').trim(); } catch (e) {}
+                if (key) {
+                    const r = await bugFetch('https://api.web3forms.com/submit', { method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' },
+                        body: JSON.stringify({ access_key: key, subject: '🐞 CDN 26 · Reporte de bug', from_name: 'CDN 26 · ' + ((account && account.nick) || 'Jugador'), mensaje: msg, contacto: contact || '—', info }) }, 9000);
+                    const j = await r.json().catch(() => ({}));
+                    if (r.ok && j.success !== false) mailed = true;
+                }
+            } catch (e) {}
+            // 3) correo, por el servidor de salas (máximo 7 s)
+            if (!mailed) try {
                 const cfg = relayCfg && relayCfg.url ? relayCfg : await Promise.race([fetchRelayCfg(), new Promise(res => setTimeout(() => res(null), 3000))]);
                 if (cfg && cfg.url) {
                     const u = cfg.url.replace(/^ws/i, 'http').replace(/\/ws\/?$/, '') + '/bug';
@@ -8266,7 +8277,7 @@
                     if (j.ok || j.pending) mailed = true;
                 }
             } catch (e) {}
-            // 3) correo directo, si el servidor no pudo (máximo 10 s)
+            // 4) correo directo por FormSubmit, si lo demás no pudo (máximo 10 s)
             if (!mailed) {
                 try {
                     const r = await bugFetch('https://formsubmit.co/ajax/' + String.fromCharCode(...BUG_K), {
@@ -8916,6 +8927,7 @@
                 '🏆 ¡Real Mapuche, campeón de la Copa CDA 2026! Felicidades al Cuarto Medio A.',
                 '🆕 Ultimate Team: Agustín Cardenas (Real Mapuche, portero) con carta normal de 79 y Héroe de 86.',
                 '🆕 Ultimate Team: Christopher Gaete (agente libre, DFC) con carta normal de 83 y Leyenda de 86.',
+                '🎉 28 celebraciones de gol con movimientos distintos: barrida de rodillas, trencito, ronda, montonera, trompo, avioncito y más. Cada jugador tiene su favorita.',
                 '⚡ Venta rápida de repetidas en Ultimate Team: vende de una vez todas las copias que te sobran (siempre te quedas con una).',
                 '👤 Ahora todos juegan con su cuenta CDN Sports: ya no hay modo invitado (el progreso que tenías en tu dispositivo se sube a tu cuenta al entrar).',
                 '🔑 Cuenta CDN Sports: nueva opción “¿Olvidaste tu contraseña?”.',
@@ -11708,7 +11720,28 @@
         }
 
         // --- Celebración de gol: el goleador corre al córner, sus compañeros lo abrazan y aparece su festejo ---
-        const CELEBRATIONS = ['✈️ ¡El avioncito!', '🔥 ¡Siuuu!', '🫶 Corazón para la hinchada', '🧎 ¡De rodillas!', '🤫 ¡Silencio en la cancha!', '💃 ¡A bailar!', '🏹 ¡El arquero!', '🤸 ¡Voltereta!', '👑 ¡El rey de la cancha!', '📞 ¡Llamen a mamá!'];
+        // m = movimiento: corner (al córner) · slide (barrida de rodillas) · plane (avioncito en zigzag) · spin (trompo) · fans (a la hinchada)
+        //     train (trencito) · ring (ronda/baile) · pile (montonera) · calm (caminando tranquilo) · salute (fila y saludo) · jump (saltos)
+        const CELEBRATIONS = [
+            { t: '✈️ ¡El avioncito!', m: 'plane' }, { t: '🔥 ¡Siuuu!', m: 'jump' }, { t: '🫶 Corazón para la hinchada', m: 'fans' },
+            { t: '🧎 ¡De rodillas!', m: 'slide' }, { t: '🤫 ¡Silencio en la cancha!', m: 'calm' }, { t: '💃 ¡A bailar!', m: 'ring' },
+            { t: '🏹 ¡El arquero!', m: 'corner' }, { t: '🤸 ¡Voltereta!', m: 'jump' }, { t: '👑 ¡El rey de la cancha!', m: 'fans' },
+            { t: '📞 ¡Llamen a mamá!', m: 'corner' }, { t: '🚂 ¡El trencito!', m: 'train' }, { t: '🌀 ¡Trompo!', m: 'spin' },
+            { t: '🥶 ¡Tranquilo, tranquilo!', m: 'calm' }, { t: '🦅 ¡Vuela, cóndor!', m: 'plane' }, { t: '🧊 ¡Frío como el hielo!', m: 'calm' },
+            { t: '🎉 ¡Montonera!', m: 'pile' }, { t: '🕺 ¡El baile del equipo!', m: 'ring' }, { t: '🏃 ¡Barrida de rodillas!', m: 'slide' },
+            { t: '🫡 ¡Saludo al equipo!', m: 'salute' }, { t: '🇨🇱 ¡Ceachei!', m: 'fans' }, { t: '🤙 ¡Buena onda!', m: 'jump' },
+            { t: '🐐 ¡El mejor de todos!', m: 'spin' }, { t: '💪 ¡Puro músculo!', m: 'salute' }, { t: '🎤 ¡Micrófono suelto!', m: 'calm' },
+            { t: '🧙 ¡Magia pura!', m: 'spin' }, { t: '😴 ¡A dormir, arquero!', m: 'slide' }, { t: '📸 ¡Foto para el recuerdo!', m: 'salute' },
+            { t: '🐍 ¡La culebrita!', m: 'train' }
+        ];
+        let celebLast = -1;
+        function pickCelebration(sc) {
+            // cada jugador tiene su festejo favorito (sale la mitad de las veces); nunca se repite dos veces seguidas
+            let h = 0; const nm = (sc && sc.name) || ''; for (let i = 0; i < nm.length; i++) h = (h * 31 + nm.charCodeAt(i)) >>> 0;
+            let k = Math.random() < 0.5 ? h % CELEBRATIONS.length : Math.floor(Math.random() * CELEBRATIONS.length);
+            if (k === celebLast) k = (k + 1 + Math.floor(Math.random() * (CELEBRATIONS.length - 1))) % CELEBRATIONS.length;
+            celebLast = k; return CELEBRATIONS[k];
+        }
         let celeb = null;   // { scorer, corner, text, emoji, team }
         function startCelebration(sc, goalSide, own, forHome) {
             celeb = null;
@@ -11716,8 +11749,8 @@
             if (!sc || own) { if (box) box.classList.add('hidden'); return; }
             const cx = goalSide === 'left' ? FIELD.minX + 34 : FIELD.maxX - 34;
             const cy = sc.y < MID_Y ? FIELD.minY + 30 : FIELD.maxY - 30;
-            const text = CELEBRATIONS[Math.floor(Math.random() * CELEBRATIONS.length)];
-            celeb = { scorer: sc, corner: { x: cx, y: cy }, text, emoji: text.split(' ')[0], t: 0 };
+            const cb = pickCelebration(sc), text = cb.t;
+            celeb = { scorer: sc, corner: { x: cx, y: cy }, text, emoji: text.split(' ')[0], t: 0, m: cb.m, start: { x: sc.x, y: sc.y } };
             const team = forHome ? homeTeam : awayTeam;
             const col = team.primaryColor || '#10b981';
             const ph = sc.photo;
@@ -11732,19 +11765,61 @@
         function updateCelebration(dt) {
             if (!celeb) return;
             celeb.t += dt;
-            const sc = celeb.scorer;
+            const t = celeb.t, sc = celeb.scorer, m = celeb.m || 'corner', C = celeb.corner;
             const a = Math.min(1, dt * 2.4);
-            players.forEach(p => {
-                let tx, ty, sp = a;
-                if (p === sc) { tx = celeb.corner.x; ty = celeb.corner.y; }
-                else if (p.isHome === sc.isHome && !p.isGK) {
+            const midX = (FIELD.minX + FIELD.maxX) / 2;
+            const mates = players.filter(p => p !== sc && p.isHome === sc.isHome && !p.isGK).sort((p, q) => Math.hypot(p.x - sc.x, p.y - sc.y) - Math.hypot(q.x - sc.x, q.y - sc.y));
+            const move = (p, tx, ty, sp, face) => {
+                tx = clamp(tx, FIELD.minX + 10, FIELD.maxX - 10); ty = clamp(ty, FIELD.minY + 10, FIELD.maxY - 10);
+                const dx = tx - p.x, dy = ty - p.y; p.x += dx * sp; p.y += dy * sp;
+                if (face != null) p.angle = face; else if (Math.hypot(dx, dy) > 2) p.angle = Math.atan2(dy, dx);
+            };
+            // --- el goleador ---
+            const inward = { x: C.x + (C.x < midX ? 70 : -70), y: C.y + (C.y < MID_Y ? 45 : -45) };
+            if (m === 'slide') {                                     // corre y se tira de rodillas: frena de a poco
+                const sp = t < 0.7 ? a * 1.25 : a * Math.max(0.05, 0.9 - (t - 0.7) * 0.7);
+                move(sc, inward.x, inward.y, sp);
+            } else if (m === 'plane') {                              // avioncito: zigzag con los brazos abiertos
+                const k = Math.max(0, 1 - t / 2.4), side = Math.sin(t * 5.5) * 55 * k;
+                const dx = C.x - celeb.start.x, dy = C.y - celeb.start.y, L = Math.hypot(dx, dy) || 1;
+                move(sc, C.x - dy / L * side, C.y + dx / L * side, a * 0.9);
+            } else if (m === 'spin') {                               // llega y gira como trompo
+                if (t < 1.1) move(sc, inward.x, inward.y, a); else move(sc, inward.x, inward.y, a * 0.3, t * 13);
+            } else if (m === 'fans') {                               // corre a la banda, frente a la hinchada
+                const fy = sc.y < MID_Y ? FIELD.minY + 22 : FIELD.maxY - 22;
+                move(sc, celeb.start.x * 0.5 + midX * 0.5, fy, a, t > 1 ? (fy < MID_Y ? -Math.PI / 2 : Math.PI / 2) : null);
+            } else if (m === 'calm') {                               // camina tranquilo, sin apuro
+                move(sc, celeb.start.x + (C.x - celeb.start.x) * 0.35, celeb.start.y + (C.y - celeb.start.y) * 0.35, a * 0.28);
+            } else if (m === 'salute') {                             // se para mirando a la cámara
+                if (t < 1) move(sc, inward.x, inward.y, a); else move(sc, inward.x, inward.y, a * 0.3, Math.PI / 2);
+            } else if (m === 'ring' || m === 'pile') {               // se queda al centro para la ronda o la montonera
+                move(sc, inward.x, inward.y, t < 0.9 ? a : a * 0.25);
+            } else move(sc, C.x, C.y, a);                            // corner, train, jump
+            // --- los compañeros ---
+            const n = mates.length;
+            mates.forEach((p, i) => {
+                if (m === 'train') {                                 // trencito: cada uno detrás del anterior
+                    const lead = i === 0 ? sc : mates[i - 1], ang = lead.angle || 0;
+                    move(p, lead.x - Math.cos(ang) * 20, lead.y - Math.sin(ang) * 20, a * 1.1);
+                } else if (m === 'ring') {                           // ronda bailando alrededor del goleador
+                    const ang = t * 2.4 + (i / Math.max(1, n)) * Math.PI * 2, r = t < 1.2 ? 40 : 30;
+                    move(p, sc.x + Math.cos(ang) * r, sc.y + Math.sin(ang) * r, a * 1.2, ang + Math.PI / 2);
+                } else if (m === 'pile') {                           // montonera: todos encima
+                    const ang = (i / Math.max(1, n)) * Math.PI * 2;
+                    move(p, sc.x + Math.cos(ang) * 9, sc.y + Math.sin(ang) * 9, a * 1.15);
+                } else if (m === 'salute' || m === 'fans') {         // en fila al lado del goleador
+                    const off = (i % 2 ? 1 : -1) * (Math.floor(i / 2) + 1) * 24;
+                    const face = m === 'salute' ? Math.PI / 2 : (sc.y < MID_Y ? -Math.PI / 2 : Math.PI / 2);
+                    move(p, sc.x + off, sc.y + (m === 'salute' ? 22 : 0), a * 0.9, t > 1.2 ? face : null);
+                } else if (m === 'slide' && t < 1.1) {               // lo dejan barrerse y después llegan
+                    move(p, p.x + (sc.x - p.x) * 0.3, p.y + (sc.y - p.y) * 0.3, a * 0.5);
+                } else {                                             // abrazo
                     const ang = Math.atan2(p.y - sc.y, p.x - sc.x);
-                    tx = sc.x + Math.cos(ang) * 24; ty = sc.y + Math.sin(ang) * 24; sp = a * 0.8;
-                } else { tx = p.slot ? p.slot.x : p.x; ty = p.slot ? p.slot.y : p.y; sp = a * 0.25; }
-                const dx = tx - p.x, dy = ty - p.y;
-                p.x += dx * sp; p.y += dy * sp;
-                if (Math.hypot(dx, dy) > 2) p.angle = Math.atan2(dy, dx);
+                    move(p, sc.x + Math.cos(ang) * 24, sc.y + Math.sin(ang) * 24, a * 0.8);
+                }
             });
+            // --- rivales y arqueros vuelven a su lugar ---
+            players.forEach(p => { if (p === sc || mates.includes(p)) return; move(p, p.slot ? p.slot.x : p.x, p.slot ? p.slot.y : p.y, a * 0.25); });
             cam.x += (sc.x - cam.x) * a; cam.y += (sc.y - cam.y) * a;
         }
         function triggerGoal(homeConceded) {
@@ -12012,8 +12087,9 @@
             }
             // Festejo: el goleador salta y muestra su celebración
             if (celeb && celeb.scorer === p && gameState === 'GOAL') {
-                const j = Math.abs(Math.sin(celeb.t * 9)) * 7;
-                ctx.font = '18px sans-serif'; ctx.textAlign = 'center';
+                const big = celeb.m === 'jump' || celeb.m === 'spin';
+                const j = Math.abs(Math.sin(celeb.t * (big ? 7 : 9))) * (big ? 16 : 7);
+                ctx.font = (big ? '22px' : '18px') + ' sans-serif'; ctx.textAlign = 'center';
                 ctx.fillText(celeb.emoji, 0, -p.radius - 18 - j);
             }
             // Energía del jugador que controlas
