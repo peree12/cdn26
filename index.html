@@ -8244,26 +8244,39 @@
             parts.push('Fecha: ' + new Date().toLocaleString('es-CL'));
             return parts.join(' · ');
         }
+        const bugFetch = (u, o, ms) => { const c = new AbortController(); const t = setTimeout(() => c.abort(), ms); return fetch(u, { ...o, signal: c.signal }).finally(() => clearTimeout(t)); };
         async function bugSend(msg, contact) {
             const info = bugInfo();
+            let saved = false, mailed = false;
+            // 1) queda guardado en Supabase (tabla bug_reports), así nunca se pierde
             try {
-                const cfg = relayCfg && relayCfg.url ? relayCfg : await fetchRelayCfg();
-                if (cfg && cfg.url) {
-                    const u = cfg.url.replace(/^ws/i, 'http').replace(/\/ws\/?$/, '') + '/bug';
-                    const r = await fetch(u, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ msg, contact, info }) });
-                    if (r.status === 429) return 'limite';
-                    const j = await r.json().catch(() => ({}));
-                    if (j.ok || j.pending) return 'ok';
+                if (sb.client && sbUid && sbUid()) {
+                    const r = await Promise.race([sb.client.from('bug_reports').insert({ user_id: sbUid(), nick: (account && account.nick) || '', msg, contact, info }), new Promise(res => setTimeout(() => res({ error: 'timeout' }), 6000))]);
+                    saved = !r.error;
                 }
             } catch (e) {}
+            // 2) correo, por el servidor de salas (máximo 7 s)
             try {
-                const r = await fetch('https://formsubmit.co/ajax/' + String.fromCharCode(...BUG_K), {
-                    method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' },
-                    body: JSON.stringify({ _subject: '🐞 CDN 26 · Reporte de bug', _template: 'table', _captcha: 'false', mensaje: msg, contacto: contact || '—', info })
-                });
-                if (r.ok) return 'ok';
+                const cfg = relayCfg && relayCfg.url ? relayCfg : await Promise.race([fetchRelayCfg(), new Promise(res => setTimeout(() => res(null), 3000))]);
+                if (cfg && cfg.url) {
+                    const u = cfg.url.replace(/^ws/i, 'http').replace(/\/ws\/?$/, '') + '/bug';
+                    const r = await bugFetch(u, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ msg, contact, info }) }, 7000);
+                    if (r.status === 429 && !saved) return 'limite';
+                    const j = await r.json().catch(() => ({}));
+                    if (j.ok || j.pending) mailed = true;
+                }
             } catch (e) {}
-            return 'error';
+            // 3) correo directo, si el servidor no pudo (máximo 10 s)
+            if (!mailed) {
+                try {
+                    const r = await bugFetch('https://formsubmit.co/ajax/' + String.fromCharCode(...BUG_K), {
+                        method: 'POST', headers: { 'content-type': 'application/json', accept: 'application/json' },
+                        body: JSON.stringify({ _subject: '🐞 CDN 26 · Reporte de bug', _template: 'table', _captcha: 'false', mensaje: msg, contacto: contact || '—', info })
+                    }, 10000);
+                    if (r.ok) mailed = true;
+                } catch (e) {}
+            }
+            return mailed || saved ? 'ok' : 'error';
         }
         function bugOpen() {
             let el = document.getElementById('bug-panel');
@@ -8282,7 +8295,7 @@
                 if (msg.length < 5) { st.className = 'bug-st bad'; st.textContent = 'Escribe un poco más para poder entender el problema.'; return; }
                 let last = 0; try { last = +localStorage.getItem('cdn26_bug_t') || 0; } catch (x) {}
                 if (Date.now() - last < 60000) { st.className = 'bug-st bad'; st.textContent = 'Espera un minuto antes de enviar otro reporte.'; return; }
-                b.disabled = true; b.textContent = 'Enviando…'; st.className = 'bug-st'; st.textContent = '';
+                b.disabled = true; b.textContent = 'Enviando…'; st.className = 'bug-st'; st.textContent = 'Enviando tu mensaje… (unos segundos)';
                 const r = await bugSend(msg, contact);
                 if (r === 'ok') {
                     try { localStorage.setItem('cdn26_bug_t', String(Date.now())); } catch (x) {}
