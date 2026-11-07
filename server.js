@@ -55,6 +55,7 @@ const server = http.createServer((req, res) => {
   let p;
   try { p = decodeURIComponent(new URL(req.url, 'http://x').pathname); } catch (e) { res.writeHead(400); return res.end(); }
   if (p === '/bug') return handleBug(req, res);
+  if (p === '/rooms') { res.writeHead(200, { 'content-type': 'application/json', 'cache-control': 'no-store', 'access-control-allow-origin': '*' }); return res.end(JSON.stringify({ rooms: pubList() })); }
   if (p === '/health') { res.writeHead(200, { 'content-type': 'text/plain', 'cache-control': 'no-store' }); return res.end('ok'); }
   if (p === '/relay.json') {                 // el juego pregunta dónde está el servidor de salas
     const https = String(req.headers['x-forwarded-proto'] || '').includes('https');
@@ -92,10 +93,19 @@ const server = http.createServer((req, res) => {
 const wss = new WebSocketServer({ server, path: '/ws', perMessageDeflate: false, maxPayload: 512 * 1024 });
 const peers = new Map();       // id -> { id, tok, ws, buf, timer, contacts }
 const send = (ws, o) => { try { if (ws && ws.readyState === 1) ws.send(JSON.stringify(o)); } catch (e) {} };
+// Salas públicas: el anfitrión las anuncia cada pocos segundos; si deja de avisar (30 s) desaparecen de la lista
+const pubs = new Map();
+const cleanTxt = (v, n) => String(v == null ? '' : v).replace(/[<>]/g, '').slice(0, n);
+function pubList() {
+  const now = Date.now(), out = [];
+  pubs.forEach((r, id) => { if (now - r.t > 30000) { pubs.delete(id); return; } out.push(r); });
+  out.sort((a, b) => (a.playing - b.playing) || (b.t0 - a.t0));
+  return out.slice(0, 60).map(r => ({ code: r.code, nick: r.nick, mode: r.mode, n: r.n, max: r.max, playing: r.playing, ver: r.ver, home: r.home, away: r.away }));
+}
 const newId = () => { let id; do { id = 'p' + Math.random().toString(36).slice(2, 10); } while (peers.has(id)); return id; };
 function remove(P) {
   if (peers.get(P.id) !== P) return;
-  peers.delete(P.id); clearTimeout(P.timer);
+  peers.delete(P.id); clearTimeout(P.timer); pubs.delete(P.id);
   P.contacts.forEach(c => { const Q = peers.get(c); if (Q) { Q.contacts.delete(P.id); send(Q.ws, { op: 'gone', id: P.id }); } });
 }
 
@@ -127,6 +137,15 @@ wss.on('connection', (ws) => {
     }
     if (!me || me.ws !== ws) return;
     if (m.op === 'hb') return;
+    if (m.op === 'pub') {
+      const r = m.r || {}, code = String(r.code || '').toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 5);
+      if (code.length !== 5) return;
+      const old = pubs.get(me.id);
+      pubs.set(me.id, { code, nick: cleanTxt(r.nick || 'Jugador', 24), mode: r.mode === 'ut' ? 'ut' : 'normal', n: Math.max(1, Math.min(20, r.n | 0)), max: Math.max(2, Math.min(20, r.max | 0)),
+        playing: !!r.playing, ver: cleanTxt(r.ver, 16), home: cleanTxt(r.home, 40), away: cleanTxt(r.away, 40), t: Date.now(), t0: old ? old.t0 : Date.now() });
+      return;
+    }
+    if (m.op === 'unpub') { pubs.delete(me.id); return; }
     if (m.op === 'bye') { remove(me); me = null; return; }
     if (m.op === 'conn' || m.op === 'ack' || m.op === 'd' || m.op === 'x') {
       const T = peers.get(String(m.to || ''));
