@@ -1344,6 +1344,87 @@
         #menu-online .pub-row .tr-btn { padding: 7px 12px; font-size: 12px; }
         #menu-online .pub-empty { padding: 14px; text-align: center; font-size: 13px; color: #64748b; }
         body.net-online.net-cap.in-match #btn-subs { display: flex !important; }
+
+        /* ===== Alineación con cartas ===== */
+        #menu-lineup { max-width: 1180px !important; }
+        .lu2 { --cs: .6; --bs: .5; user-select: none; -webkit-user-select: none; }
+        .lu2-tabs { display: flex; gap: 6px; margin-bottom: 10px; }
+        .lu2-tab { flex: 1; display: flex; align-items: center; gap: 10px; padding: 8px 12px; background: #eef0f3; border: 0; border-bottom: 3px solid transparent; cursor: pointer; text-align: left; min-width: 0; }
+        .lu2-tab img { width: 34px; height: 34px; object-fit: contain; flex: 0 0 auto; }
+        .lu2-tab span { display: flex; flex-direction: column; min-width: 0; } .lu2-tab b { font: 800 15px Inter, sans-serif; color: #1d2230; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; } .lu2-tab small { font-size: 11px; color: #64748b; }
+.lu2-back { display: none; flex: 0 0 auto; padding: 0 12px; font: 900 18px Inter, sans-serif; background: #1d2230; color: #fff; border: 0; cursor: pointer; }
+        .lu2-tab.sel { background: #fff; border-bottom-color: #10b981; box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+        .lu2-main { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 12px; align-items: stretch; }
+        .lu2-pitch { position: relative; display: grid; grid-template-columns: .8fr 1fr 1fr 1fr; align-items: center; min-height: calc((166px * var(--cs) + 22px) * var(--rows, 2) + 24px);
+            background: repeating-linear-gradient(90deg, #15803d 0 60px, #16a34a 60px 120px); border: 3px solid rgba(255,255,255,.85); border-radius: 4px; padding: 10px 6px; overflow: hidden; }
+        .lu2-pitch::before { content: ''; position: absolute; left: 62%; top: 0; bottom: 0; border-left: 2px solid rgba(255,255,255,.7); }
+        .lu2-pitch::after { content: ''; position: absolute; left: -2px; top: 26%; height: 48%; width: 15%; border: 2px solid rgba(255,255,255,.7); border-left: 0; }
+        .lu2-col { position: relative; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: space-evenly; gap: 8px; height: 100%; }
+        .lu2-slot { position: relative; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: grab; touch-action: none; transition: transform .12s; }
+        .lu2-slot .utc { --s: var(--cs); }
+        .lu2-bench .lu2-slot .utc { --s: var(--bs); }
+        .lu2-slot.sel .utc { outline: 3px solid #facc15; outline-offset: 2px; transform: translateY(-3px); }
+        .lu2-slot.tgt .utc { box-shadow: 0 0 0 2px rgba(250,204,21,.45); }
+        .lu2-slot.over .utc { outline: 3px dashed #fff; outline-offset: 2px; }
+        .lu2-slot.drag { opacity: .35; }
+        .lu2-ghost { position: fixed; z-index: 300; pointer-events: none; transform: rotate(-4deg) scale(1.05); filter: drop-shadow(0 12px 18px rgba(0,0,0,.4)); }
+        .lu2-sl { font: 900 10px Inter, sans-serif; letter-spacing: .06em; padding: 1px 7px; border-radius: 8px; background: rgba(0,0,0,.45); color: #fff; }
+        .lu2-slot.fit .lu2-sl { background: #16a34a; } .lu2-slot.near .lu2-sl { background: #ca8a04; } .lu2-slot.off .lu2-sl { background: #dc2626; }
+        .lu2-num { position: absolute; right: calc(5px * var(--s)); top: calc(48px * var(--s)); font: 900 calc(13px * var(--s)) Teko, sans-serif; color: #fff; background: rgba(0,0,0,.45); padding: 0 calc(4px * var(--s)); border-radius: 4px; }
+        .lu2-side { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+        .lu2-summ { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+        .lu2-summ div { background: #1d2230; color: #fff; padding: 6px 10px; } .lu2-summ small { display: block; font-size: 10px; letter-spacing: .1em; text-transform: uppercase; color: #94a3b8; } .lu2-summ b { font: 700 28px/1 Teko, sans-serif; } .lu2-summ i { font-style: normal; font-size: 16px; color: #94a3b8; }
+        .lu2-forms { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+        .lu2-forms button { padding: 6px 2px; white-space: nowrap; min-width: 0; background: #eef0f3; border: 0; border-bottom: 3px solid transparent; cursor: pointer; display: flex; flex-direction: column; align-items: center; }
+        .lu2-forms b { font: 700 18px/1 Teko, sans-serif; color: #1d2230; } .lu2-forms small { font-size: 9px; color: #64748b; }
+        .lu2-forms button.sel { background: #10b981; border-bottom-color: #047857; } .lu2-forms button.sel b, .lu2-forms button.sel small { color: #fff; }
+        .lu2-auto { padding: 9px; font: 800 13px Inter, sans-serif; background: linear-gradient(90deg, #facc15, #fde68a); color: #1d2230; border: 0; cursor: pointer; }
+        .lu2-info { display: grid; grid-template-columns: 56px 1fr; gap: 4px 10px; align-items: center; background: #f6f7f9; border: 1px solid #e2e5ea; padding: 8px; font-size: 12px; color: #3f4a5c; }
+        .lu2-info img { width: 56px; height: 56px; object-fit: cover; border-radius: 50%; background: #e2e8f0; }
+        .lu2-info b { display: block; font-size: 15px; color: #1d2230; } .lu2-info small { display: block; color: #64748b; }
+        .lu2-info label { display: flex; align-items: center; gap: 6px; margin-top: 4px; font-weight: 700; } .lu2-info input { width: 56px; padding: 3px 6px; border: 1px solid #cbd5e1; font: 700 14px Inter, sans-serif; color: #1d2230; background: #fff; }
+        .lu2-info p { grid-column: 1 / -1; margin: 2px 0 0; font-size: 11px; color: #64748b; } .lu2-info.empty { display: block; }
+        .lu2-bench { background: #1d2230; padding: 8px 8px 10px; flex: 1; min-height: 0; display: flex; flex-direction: column; }
+        .lu2-bh { font: 800 12px Inter, sans-serif; letter-spacing: .08em; text-transform: uppercase; color: #fff; margin-bottom: 6px; } .lu2-bh small { color: #94a3b8; margin-left: 4px; }
+        .lu2-brow { display: flex; flex-wrap: wrap; gap: 8px; justify-content: flex-start; overflow-y: auto; padding: 2px; scrollbar-width: thin; max-height: calc((166px * var(--bs) + 8px) * 2 + 4px); }
+        .lu2-none { color: #94a3b8; font-size: 12px; padding: 10px; }
+        /* PC grande */
+        @media (min-width: 1200px) and (min-height: 760px) { .lu2 { --cs: .7; --bs: .55; } .lu2-main { grid-template-columns: minmax(0, 1fr) 320px; } }
+        /* celulares en horizontal y tablets chicas */
+        @media (max-width: 900px), (max-height: 560px) {
+            .lu2 { --cs: .44; --bs: .4; }
+            .lu2-main { grid-template-columns: minmax(0, 1fr) 210px; gap: 8px; }
+            .lu2-pitch { padding: 4px; }
+            .lu2-col { gap: 4px; }
+            .lu2-tab { padding: 5px 8px; } .lu2-tab img { width: 26px; height: 26px; } .lu2-tab b { font-size: 13px; }
+            .lu2-summ b { font-size: 22px; } .lu2-forms b { font-size: 15px; } .lu2-forms small { display: none; }
+            .lu2-info { grid-template-columns: 40px 1fr; padding: 6px; } .lu2-info img { width: 40px; height: 40px; } .lu2-info p { display: none; }
+            .lu2-info.empty p { display: block; font-size: 10px; }
+            .lu2-bench { padding: 5px 6px; } .lu2-bh { font-size: 10px; margin-bottom: 4px; } .lu2-brow { gap: 5px; }
+            .lu2-auto { padding: 6px; font-size: 11px; } .lu2-summ div { padding: 3px 8px; } .lu2-summ small { font-size: 8px; } .lu2-side { gap: 5px; }
+            .lu2-slot .lu2-sl { font-size: 8px; padding: 0 5px; }
+            .lu-sub { display: none; }
+        }
+        @media (max-height: 560px) {
+            #menu-lineup { padding: 6px 10px !important; margin-top: 0 !important; } #menu-lineup > div:first-child { display: none !important; } .lu2-back { display: block; }
+            .lu2-tab { min-height: 0; line-height: 1.1; } .lu2-tab b { font-size: 12px !important; }
+            #btn-back-setup { padding: 2px 8px !important; font-size: 11px !important; }
+            .lu2-tab { padding: 3px 8px; } .lu2-tab img { width: 22px; height: 22px; } .lu2-tabs { margin-bottom: 4px; }
+            .lu2-pitch { min-height: calc((166px * var(--cs) + 15px) * var(--rows, 2) + 10px); } .lu2-col { gap: 2px; }
+            #menu-lineup.space-y-5 > * + * { margin-top: 6px !important; }
+            #btn-start-match { padding: 6px 12px !important; font-size: 20px !important; }
+            .lu2-info:not(.empty) { display: none; } .lu2-info.empty { display: none; }
+        }
+        @media (max-height: 430px) { .lu2 { --cs: .36; --bs: .32; } .lu2-tabs { margin-bottom: 4px; } .lu2-tab small { display: none; } }
+        @media (max-height: 372px) { .lu2 { --cs: .31; --bs: .29; } }
+        @media (min-height: 561px) and (max-height: 720px) and (min-width: 901px) { .lu2 { --cs: .5; --bs: .42; } #menu-lineup .lu-sub { display: none; } #btn-start-match { padding: 10px !important; } }
+        /* celular en vertical: la cancha arriba y el panel abajo */
+        @media (max-width: 560px) and (orientation: portrait) { .lu2 { --cs: .4; } .lu2-main { grid-template-columns: 1fr; } }
+        #lu2-net-wrap { position: fixed; inset: 0; z-index: 110; background: rgba(15,23,42,.6); display: flex; align-items: center; justify-content: center; padding: 10px; }
+        #lu2-net-wrap.hidden { display: none; }
+        .lu2-net-card { width: min(1180px, 100%); max-height: 100%; overflow-y: auto; background: #fff; border-top: 6px solid #10b981; padding: 12px 14px; }
+        .lu2-net-h { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 8px; } .lu2-net-h b { font: 800 18px Inter, sans-serif; color: #1d2230; }
+        @media (max-height: 560px) { .lu2-net-card { padding: 6px 10px; } .lu2-net-h { margin-bottom: 4px; } .lu2-net-h b { font-size: 14px; } .lu2-net-h .tr-btn { padding: 4px 12px; } }
         /* Cartas repetidas */
         #ui-layer .ut-item { position: relative; }
         #ui-layer .ut-dup { position: absolute; top: 2px; right: 4px; z-index: 3; background: #e11d74; color: #fff; font: 800 11px Inter, sans-serif; padding: 2px 7px; border-radius: 9px; box-shadow: 0 2px 6px rgba(0,0,0,.3); pointer-events: none; }
@@ -1999,15 +2080,16 @@
         <div id="menu-lineup" class="hidden w-full max-w-5xl glass-panel rounded-3xl p-6 shadow-2xl space-y-5 border border-slate-800">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <div>
-                    <h2 class="text-3xl font-black font-teko text-white tracking-wide leading-none">ALINEACIÓN Y PORTEROS (FÚTBOL 5)</h2>
-                    <p class="text-xs text-slate-400">Designa quién será el Portero (GK) o cambia los 5 titulares</p>
+                    <h2 class="text-3xl font-black font-teko text-white tracking-wide leading-none">ALINEACIÓN Y TÁCTICA</h2>
+                    <p class="text-xs text-slate-400 lu-sub">Toca dos cartas o arrastra una encima de otra para cambiarlas</p>
                 </div>
                 <button id="btn-back-setup" class="text-slate-400 hover:text-white px-3 py-1.5 rounded-lg bg-slate-800 text-sm font-semibold transition border border-slate-700">
                     <span class="ic" aria-hidden="true">←</span> Cambiar Equipos
                 </button>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div id="lu2" class="lu2"></div>
+            <div id="lu-old" class="grid grid-cols-1 md:grid-cols-2 gap-6" style="display:none">
                 <!-- Panel Alineación Local -->
                 <div class="bg-slate-900/80 p-4 rounded-2xl border border-slate-800 space-y-3">
                     <div class="flex justify-between items-center border-b border-slate-800 pb-2">
@@ -7030,20 +7112,38 @@
         }
         // --- Equipos del partido online ---
         function netTeamSpec(t) {
-            return { id: t.id, primaryColor: t.primaryColor, trimColor: t.trimColor, gkColor: t.gkColor, formation: t.formation,
+            return { id: t.id, primaryColor: t.primaryColor, trimColor: t.trimColor, gkColor: t.gkColor, formation: t.formation, manual: !!t.manualSlots,
                 starters: t.activeStarters.map(p => ({ name: p.name, num: p.num || null, isGK: !!p.isGK })), bench: (t.activeBench || []).map(p => ({ name: p.name, num: p.num || null, isGK: false })) };
         }
         function netBuildTeam(spec) {
             const base = JSON.parse(JSON.stringify(TEAMS.find(t => t.id === spec.id) || TEAMS[0]));
             const find = (s) => { const r = base.roster.find(p => p.name === s.name) || { name: s.name, stats: 80 }; return { ...r, num: s.num || r.num, isGK: !!s.isGK }; };
             base.activeStarters = spec.starters.map(find); base.activeBench = (spec.bench || []).map(find);
-            base.primaryColor = spec.primaryColor; base.trimColor = spec.trimColor; base.gkColor = spec.gkColor; base.formation = spec.formation || base.formation;
+            base.primaryColor = spec.primaryColor; base.trimColor = spec.trimColor; base.gkColor = spec.gkColor; base.formation = spec.formation || base.formation; base.manualSlots = !!spec.manual;
             return base;
+        }
+
+        function netLineupsOpen() {
+            net.lu = net.lu || {};
+            const T = { home: netMakeTeam(net.team), away: netMakeTeam(net.awayTeam) };
+            let w = document.getElementById('lu2-net-wrap');
+            if (!w) { w = document.createElement('div'); w.id = 'lu2-net-wrap'; document.body.appendChild(w); }
+            w.innerHTML = `<div class="lu2-net-card"><div class="lu2-net-h"><b>🃏 Alineaciones de la sala</b><button class="tr-btn gold" data-lu2close="1">✓ Listo</button></div><div id="lu2-net" class="lu2"></div></div>`;
+            w.classList.remove('hidden');
+            Object.assign(lu2, { teams: T, host: 'lu2-net', side: 'home', sel: null, onChange: (side, t) => { net.lu[t.id] = { f: t.formation, m: !!t.manualSlots, s: t.activeStarters.map(p => [p.name, !!p.isGK]), b: t.activeBench.map(p => p.name) }; } });
+            lu2Render();
+            w.onclick = (e) => { if (e.target === w || e.target.closest('[data-lu2close]')) { w.classList.add('hidden'); lu2.teams = null; lu2.host = 'lu2'; lu2.onChange = null; try { netBroadcastLobby(); } catch (x) {} } };
         }
         function netMakeTeam(id) {
             const t = JSON.parse(JSON.stringify(TEAMS.find(x => x.id === id) || TEAMS[0]));
             t.primaryColor = teamColor(t); autoLineup(t); t.activeBench = t.activeBench || [];      // online: 5 en cancha y el resto en la banca
             applyKit(t); applySavedNumbers(t);
+            const L = net.lu && net.lu[id];
+            if (L) {
+                const all = [...t.activeStarters, ...t.activeBench], by = (n) => all.find(p => p.name === n);
+                const st = L.s.map(([n, g]) => { const p = by(n); return p ? { ...p, isGK: !!g } : null; }), be = L.b.map(by);
+                if (st.every(Boolean) && be.every(Boolean) && st.length === t.activeStarters.length) { t.activeStarters = st; t.activeBench = be.map(p => ({ ...p, isGK: false })); t.formation = L.f || t.formation; t.manualSlots = !!L.m; }
+            }
             return t;
         }
         const netCaptainUt = (home) => { const m = net.members.filter(x => x.home === home).sort((a, b) => a.num - b.num).find(x => x.ut); return m ? m.ut : null; };
@@ -7395,7 +7495,7 @@
                     ${isHost ? modeSel + `<label class="ac-lbl">Duración</label><select id="on-dur" class="on-sel">${[[120, '2 minutos'], [180, '3 minutos'], [240, '4 minutos'], [360, '6 minutos']].map(([v, l]) => `<option value="${v}" ${v === net.duration ? 'selected' : ''}>${l}</option>`).join('')}</select>`
                         : `<div class="on-modeinfo">Tipo de partido: <b>${utMode ? '⚡ Ultimate Team' : '⚽ Normal'}</b> · ${Math.round(net.duration / 60)} min${utMode && !myUt ? ' · ⚠️ arma tu Ultimate Team para aportar tu club' : ''}</div>`}
                     <p class="ut-note">Pueden jugar 1 vs 1, 1 vs 2, 2 vs 2… hasta 5 vs 5 (o todos contra la IA). Si faltan jugadores en un equipo, cada uno puede cambiar entre los compañeros que maneja la IA (CAMBIAR o pasando el balón). Con 5 en un equipo, cada uno queda fijo en su jugador y el 5º es el portero.</p>
-                    <div class="on-row">${isHost ? `<button class="tr-btn" data-on="cancel">✕ Cerrar sala</button><button class="tr-btn gold" data-on="start" ${why ? 'disabled' : ''}>▶ Comenzar partido</button>` : `<button class="tr-btn" data-on="cancel">✕ Salir de la sala</button>`}</div>
+                    <div class="on-row">${isHost ? `<button class="tr-btn" data-on="cancel">✕ Cerrar sala</button>${!utMode ? '<button class="tr-btn pri" data-on="lineups">🃏 Alineaciones</button>' : ''}<button class="tr-btn gold" data-on="start" ${why ? 'disabled' : ''}>▶ Comenzar partido</button>` : `<button class="tr-btn" data-on="cancel">✕ Salir de la sala</button>`}</div>
                     ${isHost && why ? `<div class="on-modeinfo">${esc(why)}</div>` : ''}`;
             } else if (net.role === 'guest') {
                 body = `<div class="on-code-lbl">SALA</div><div class="on-code">${esc(net.code)}</div><div class="on-row"><button class="tr-btn" data-on="cancel">✕ Cancelar</button></div>`;
@@ -7427,6 +7527,7 @@
                 const u = e.target.closest('[data-ut]'); if (u && !u.disabled) { utClick(u); return; }
                 const b = e.target.closest('[data-on]'); if (!b || b.disabled) return;
                 const a = b.dataset.on;
+                if (a === 'lineups') { netLineupsOpen(); return; }
                 if (a === 'pub') { net.pub = !net.pub; if (net.pub) { netPubSend(); netPubLoop(); padToast('🌍 Tu sala aparece en la lista de salas públicas'); } else netPubSend(true); renderOnline(); return; }
                 if (a === 'prefresh') { netPubFetch(true); return; }
                 if (a === 'pjoin') { net.joinCode = b.dataset.code; netJoin(b.dataset.code); return; }
@@ -9029,6 +9130,7 @@
             { v: 'Versión 1.1 · Mercado y campeones', tag: '', items: [
                 '🏆 ¡Real Mapuche, campeón de la Copa CDA 2026! Felicidades al Cuarto Medio A.',
                 '🆕 Ultimate Team: Agustín Cardenas (Real Mapuche, portero) con carta normal de 79 y Héroe de 86.',
+                                '🃏 Alineaciones con cartas en todos los modos (Partida rápida, Carrera, Torneos y salas online): cancha con tus jugadores, formaciones, ✓ en su puesto / ⚠ fuera de puesto. Toca dos cartas o arrastra para cambiar.',
                 '🎓 Nueva Edición Profesor (exclusiva de Ultimate Team, solo en el Sobre Élite): Gabriel Pérez (EI, 93), Bastián Concho (POR, 89) y Christopher Gaete (DFC, 86). Si ya tenías a Gaete, tu carta pasó a ser la de Profesor.',
                 '🎉 28 celebraciones de gol con movimientos distintos: barrida de rodillas, trencito, ronda, montonera, trompo, avioncito y más. Cada jugador tiene su favorita.',
                 '⚡ Venta rápida de repetidas en Ultimate Team: vende de una vez todas las copias que te sobran (siempre te quedas con una).',
@@ -10377,8 +10479,171 @@
             playMenuMusic();
         }
 
+        // =====================================================================
+        // ALINEACIÓN CON CARTAS (como Ultimate Team) para Partida rápida, Carrera, Torneos y salas online.
+        // Toca dos cartas (o arrastra una sobre otra) para cambiarlas. El puesto donde la dejas es donde juega.
+        // =====================================================================
+        const LU2_FORMS = [['1-2-1', '1-2-1', 'Rombo'], ['2-2', '2-2', 'Cuadrado'], ['1-1-2', '1-1-2', 'Ofensiva'], ['2-1-1', '2-1-1', 'Equilibrada'], ['3-0', '3-1', 'Defensiva']];
+        const lu2 = { side: 'home', sel: null, info: null, host: null, teams: null, onChange: null };
+        const lu2Team = () => { const T = lu2.teams || { home: homeTeam, away: awayTeam }; return T[lu2.side]; };
+        // Datos de carta para cualquier jugador (de un equipo, de la carrera o creado por ti)
+        function lu2Info(p, team, gkSlot) {
+            const r = Math.round(+p.stats || 60);
+            const pk = utPool().byKey[team.id + '|' + p.name] || utPool().list.find(x => x.name === p.name) || null;
+            const h = hashStr(p.name);
+            const isGK = gkSlot || (!!p.isGK && gkSlot !== false);
+            const labels = isGK ? ['EST', 'MAN', 'SAQ', 'REF', 'VEL', 'POS'] : ['RIT', 'TIR', 'PAS', 'REG', 'DEF', 'FÍS'];
+            const st = labels.map((l, i) => [clamp(r + ((h >> (i * 3)) % 13) - 6, 35, 99), l]);
+            const pos = isGK ? 'POR' : (p.pos || posOf({ ...p, isGK: false }) || (p.natGK ? 'POR' : '—'));
+            const tier = r >= 78 ? 'oro' : r >= 72 ? 'plata' : 'bronce';
+            return { name: p.name, r, pos, tier, stats: st, nat: (pk && pk.nat) || p.nat || 'CL',
+                photo: photoOf(p) || (pk && pk.photo) || fakeFace(h, team.primaryColor || '#475569'), num: p.num, natGK: !!p.natGK, energy: p.energy };
+        }
+        function lu2Card(p, team, l, i, gkSlot, slotG) {
+            const c = lu2Info(p, team, gkSlot);
+            const grp = c.pos === 'POR' ? 'POR' : posGroup(c.pos);
+            let fit = '';
+            if (l === 's') fit = gkSlot ? (p.natGK ? 'fit' : 'off') : (!grp ? '' : grp === slotG ? 'fit' : grp === 'POR' ? 'off' : 'near');
+            const sel = lu2.sel && lu2.sel.l === l && lu2.sel.i === i, tgt = lu2.sel && !sel;
+            const crest = team.logo || CDN_CREST();
+            return `<div class="lu2-slot ${fit} ${sel ? 'sel' : ''} ${tgt ? 'tgt' : ''}" data-lu2="${l}" data-i="${i}">
+                <div class="utc t-${c.tier}">
+                    <div class="utc-shine"></div>
+                    <div class="utc-head"><div class="utc-top"><b class="utc-r">${c.r}</b><span class="utc-pos">${esc(c.pos)}</span><img class="utc-fl" src="${flagSrc(c.nat)}" alt=""><img class="utc-cr" src="${crest}" alt=""></div>
+                    <img class="utc-ph" src="${c.photo}" alt="" draggable="false"></div>
+                    <div class="utc-name">${esc(surname(c.name).toUpperCase())}</div>
+                    <div class="utc-st">${c.stats.map(([v, lb]) => `<span><b>${v}</b> ${lb}</span>`).join('')}</div>
+                    ${c.num ? `<div class="lu2-num">${c.num}</div>` : ''}
+                </div>
+                ${l === 's' ? `<span class="lu2-sl">${gkSlot ? 'POR' : GROUP_NAME[slotG] ? slotG : ''}${fit === 'off' ? ' ⚠' : fit === 'fit' ? ' ✓' : ''}</span>` : ''}
+            </div>`;
+        }
+        // Mapa de la cancha: el portero y cada jugador de campo en el puesto de la formación
+        function lu2Slots(team) {
+            const S = team.activeStarters;
+            let gi = S.findIndex(p => p.isGK); if (gi < 0) gi = 0;
+            const field = S.map((p, i) => i).filter(i => i !== gi), sl = formSlots(team.formation || '1-2-1');
+            const cols = { POR: [{ i: gi, g: 'POR' }], DEF: [], MED: [], DEL: [] };
+            field.forEach((idx, k) => (cols[sl[k]] || cols.MED).push({ i: idx, g: sl[k] || 'MED' }));
+            return cols;
+        }
+        function lu2Avg(team) { const s = team.activeStarters; return s.length ? Math.round(s.reduce((a, p) => a + (+p.stats || 0), 0) / s.length) : 0; }
+        function lu2FitN(team) {
+            const cols = lu2Slots(team); let n = 0;
+            Object.entries(cols).forEach(([g, L]) => L.forEach(x => { const p = team.activeStarters[x.i]; if (!p) return; if (g === 'POR') { if (p.natGK) n++; } else if (posGroup(p.pos || posOf({ ...p, isGK: false })) === g) n++; }));
+            return n;
+        }
+        function lu2HTML() {
+            const T = lu2.teams || { home: homeTeam, away: awayTeam };
+            const team = T[lu2.side]; if (!team || !team.activeStarters) return '';
+            [...team.activeStarters, ...team.activeBench].forEach(p => { if (p.natGK === undefined) p.natGK = !!p.isGK; });
+            const cols = lu2Slots(team);
+            const col = (g) => `<div class="lu2-col c-${g}">${cols[g].map(x => lu2Card(team.activeStarters[x.i], team, 's', x.i, g === 'POR', g)).join('')}</div>`;
+            const tab = (k) => { const t = T[k]; if (!t) return ''; return `<button class="lu2-tab ${lu2.side === k ? 'sel' : ''}" data-lu2tab="${k}"><img src="${t.logo || CDN_CREST()}" alt=""><span><b>${esc(t.name)}</b><small>${k === 'home' ? 'Local' : 'Visita'} · media ${lu2Avg(t)}</small></span></button>`; };
+            const selP = lu2.sel ? (lu2.sel.l === 's' ? team.activeStarters : team.activeBench)[lu2.sel.i] : null;
+            let info;
+            if (selP) {
+                const c = lu2Info(selP, team, lu2.sel.l === 's' && selP.isGK);
+                info = `<div class="lu2-info"><img src="${c.photo}" alt=""><div><b>${esc(c.name)}</b><small>${esc(c.pos)} · media ${c.r}${c.natGK ? ' · 🧤 portero' : ''}</small>
+                    <label>Dorsal <input class="lu2-dorsal" type="number" min="1" max="99" value="${c.num || ''}" data-name="${esc(selP.name)}"></label></div>
+                    <p>Toca otra carta (en la cancha o en el banco) para cambiarlos de lugar.</p></div>`;
+            } else info = `<div class="lu2-info empty"><p>👆 Toca una carta y después otra para cambiarlas, o arrástrala encima. ✓ = en su puesto · ⚠ = fuera de puesto.</p></div>`;
+            return `<div class="lu2-tabs">${lu2.host === 'lu2' ? '<button class="lu2-back" data-lu2back="1" title="Cambiar equipos">←</button>' : ''}${tab('home')}${tab('away')}</div>
+                <div class="lu2-main">
+                    <div class="lu2-pitch" style="--rows:${Math.max(2, ...Object.values(cols).map(c => c.length))}">${col('POR')}${col('DEF')}${col('MED')}${col('DEL')}</div>
+                    <div class="lu2-side">
+                        <div class="lu2-summ"><div><small>Media</small><b>${lu2Avg(team)}</b></div><div><small>En su puesto</small><b>${lu2FitN(team)}<i>/5</i></b></div></div>
+                        <div class="lu2-forms">${LU2_FORMS.map(([k, n, d]) => `<button class="${(team.formation || '1-2-1') === k ? 'sel' : ''}" data-lu2f="${k}" title="${d}"><b>${n}</b><small>${d}</small></button>`).join('')}</div>
+                        <button class="lu2-auto" data-lu2auto="1">✨ Mejor equipo automático</button>
+                        ${info}
+                        <div class="lu2-bench"><div class="lu2-bh">🪑 Suplentes <small>${team.activeBench.length}</small></div>
+                            <div class="lu2-brow">${team.activeBench.length ? team.activeBench.map((p, i) => lu2Card(p, team, 'b', i, false, null)).join('') : '<div class="lu2-none">Sin suplentes</div>'}</div></div>
+                    </div>
+                </div>`;
+        }
+        function lu2Render() {
+            const el = document.getElementById(lu2.host || 'lu2'); if (!el) return;
+            el.innerHTML = lu2HTML();
+        }
+        // Cambia dos lugares (mismo funcionamiento que antes: el que entra al arco pasa a ser el portero)
+        function lu2Swap(a, b) {
+            const team = lu2Team(); if (!team) return;
+            const arr = (x) => x.l === 's' ? team.activeStarters : team.activeBench;
+            const A = arr(a), B = arr(b), pa = A[a.i], pb = B[b.i];
+            if (!pa || !pb || pa === pb) return;
+            if (a.l === 's' && b.l === 's') { const g = pa.isGK; pa.isGK = pb.isGK; pb.isGK = g; }
+            else if (a.l !== b.l) { const st = a.l === 's' ? pa : pb, be = a.l === 's' ? pb : pa; be.isGK = st.isGK; st.isGK = false; }
+            A[a.i] = pb; B[b.i] = pa;
+            team.manualSlots = true;
+            try { sfx && sfx('ui'); } catch (e) {}
+            lu2Changed();
+        }
+        function lu2Changed() {
+            if (!lu2.teams) { try { renderTeamRosterLists(homeTeam, 'home'); renderTeamRosterLists(awayTeam, 'away'); const a = document.getElementById('select-home-formation'), b = document.getElementById('select-away-formation'); if (a) a.value = homeTeam.formation || '1-2-1'; if (b) b.value = awayTeam.formation || '1-2-1'; } catch (e) {} }
+            if (lu2.onChange) lu2.onChange(lu2.side, lu2Team());
+            lu2Render();
+        }
+        function lu2Tap(l, i) {
+            const cur = { l, i };
+            if (lu2.sel && !(lu2.sel.l === l && lu2.sel.i === i)) { const a = lu2.sel; lu2.sel = null; lu2Swap(a, cur); return; }
+            lu2.sel = lu2.sel ? null : cur; lu2Render();
+        }
+        (function () {
+            let drag = null;
+            const slotAt = (x, y) => { const e = document.elementFromPoint(x, y); return e ? e.closest('.lu2-slot') : null; };
+            const inLu = (e) => e.target.closest && e.target.closest('#lu2, #lu2-net');
+            document.addEventListener('click', (e) => {
+                if (!inLu(e)) return;
+                if (e.target.closest('[data-lu2back]')) { const bb = document.getElementById('btn-back-setup'); if (bb) bb.click(); return; }
+                const t = e.target.closest('[data-lu2tab]'); if (t) { lu2.side = t.dataset.lu2tab; lu2.sel = null; lu2Render(); return; }
+                const f = e.target.closest('[data-lu2f]'); if (f) { const team = lu2Team(); team.formation = f.dataset.lu2f; team.manualSlots = true; lu2.sel = null; lu2Changed(); return; }
+                const au = e.target.closest('[data-lu2auto]'); if (au) { const team = lu2Team(); const keep = team.formation; const nums = {}; [...team.activeStarters, ...team.activeBench].forEach(p => nums[p.name] = p.num); autoLineup(team); team.formation = keep; [...team.activeStarters, ...team.activeBench].forEach(p => { if (nums[p.name]) p.num = nums[p.name]; }); team.manualSlots = false; lu2.sel = null; lu2Changed(); try { padToast('✨ Cada uno en su mejor puesto'); } catch (x) {} return; }
+            });
+            document.addEventListener('change', (e) => {
+                if (!e.target.classList || !e.target.classList.contains('lu2-dorsal')) return;
+                const team = lu2Team(), n = clamp(parseInt(e.target.value, 10) || 0, 1, 99);
+                [...team.activeStarters, ...team.activeBench].forEach(p => { if (p.name === e.target.dataset.name) p.num = n; });
+                lu2Changed();
+            });
+            document.addEventListener('pointerdown', (e) => {
+                const s = e.target.closest && e.target.closest('.lu2-slot'); if (!s || !inLu(e)) return;
+                drag = { s, x0: e.clientX, y0: e.clientY, id: e.pointerId, on: false, g: null };
+            });
+            document.addEventListener('pointermove', (e) => {
+                if (!drag || e.pointerId !== drag.id) return;
+                const d = Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0);
+                if (!drag.on) {
+                    if (d < 9) return;
+                    drag.on = true;
+                    const r = drag.s.getBoundingClientRect(), g = drag.s.cloneNode(true);
+                    g.classList.add('lu2-ghost'); g.style.width = r.width + 'px'; g.style.left = r.left + 'px'; g.style.top = r.top + 'px';
+                    drag.ox = e.clientX - r.left; drag.oy = e.clientY - r.top; document.body.appendChild(g); drag.g = g; drag.s.classList.add('drag');
+                }
+                e.preventDefault();
+                drag.g.style.left = (e.clientX - drag.ox) + 'px'; drag.g.style.top = (e.clientY - drag.oy) + 'px';
+                document.querySelectorAll('.lu2-slot.over').forEach(x => x.classList.remove('over'));
+                const o = slotAt(e.clientX, e.clientY); if (o && o !== drag.s) o.classList.add('over');
+            }, { passive: false });
+            const end = (e, cancel) => {
+                if (!drag || e.pointerId !== drag.id) return;
+                const d = drag; drag = null;
+                document.querySelectorAll('.lu2-slot.over').forEach(x => x.classList.remove('over'));
+                if (d.on) {
+                    d.g.remove(); d.s.classList.remove('drag');
+                    const o = cancel ? null : slotAt(e.clientX, e.clientY);
+                    if (o && o !== d.s) { lu2.sel = null; lu2Swap({ l: d.s.dataset.lu2, i: +d.s.dataset.i }, { l: o.dataset.lu2, i: +o.dataset.i }); }
+                    else lu2Render();
+                    return;
+                }
+                if (!cancel && Math.hypot(e.clientX - d.x0, e.clientY - d.y0) < 12) lu2Tap(d.s.dataset.lu2, +d.s.dataset.i);
+            };
+            document.addEventListener('pointerup', (e) => end(e, false));
+            document.addEventListener('pointercancel', (e) => end(e, true));
+        })();
         // --- 5. ALINEACIONES Y SELECCIÓN FLEXIBLE DE PORTERO ---
         function renderLineupCustomizer() {
+            lu2.teams = null; lu2.host = 'lu2'; lu2.onChange = null; lu2.sel = null; lu2.side = 'home';
+            setTimeout(lu2Render, 0);
             document.getElementById('lineup-home-title').textContent = homeTeam.name.toUpperCase();
             setBadge(document.getElementById('lineup-home-badge'), homeTeam);
             document.getElementById('select-home-formation').value = homeTeam.formation || '1-2-1';
@@ -10451,6 +10716,7 @@
                 starter.isGK = false;
             }
             A[a.idx] = pb; B[b.idx] = pa;
+            team.manualSlots = true;
             renderTeamRosterLists(team, side);
         }
 
@@ -11463,7 +11729,7 @@
                 const coords = getFormationCoordinates(team.formation, attacksRight(isHome));
                 const gk = starters.find(p => p.isGK);
                 let field = starters.filter(p => p !== gk);
-                if (!team.ut) field = fitToSlots(field, team.formation, fieldGroup, p => +p.stats || 0);   // si hay un puesto de defensa, va un defensa
+                if (!team.ut && !team.manualSlots) field = fitToSlots(field, team.formation, fieldGroup, p => +p.stats || 0);   // si hay un puesto de defensa, va un defensa (salvo que tú lo hayas ubicado)
                 const ordered = [gk, ...field];
                 ordered.forEach((pd, idx) => {
                     const c = coords[idx];
