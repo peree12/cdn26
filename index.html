@@ -8334,6 +8334,8 @@
             try { parts.push('Modo: ' + (net.playing ? 'online ' + net.role : careerCtx ? 'carrera' : tourCtx ? 'torneo' : utCtx ? 'ultimate team' : gameMode || 'menú')); } catch (e) {}
             try { parts.push('Navegador: ' + navigator.userAgent); } catch (e) {}
             try { parts.push('Página: ' + location.href.split('?')[0]); } catch (e) {}
+            try { const e3 = JSON.parse(localStorage.getItem('cdn26_3d_err') || 'null'); if (e3) parts.push('Modo 3D: ' + e3.why + ' (' + e3.msg + ')'); } catch (e) {}
+            try { parts.push('3D: ' + (window.settings && settings.view3d ? 'activado' : 'apagado') + (typeof r3d !== 'undefined' ? ' · listo ' + r3d.ready + ' · calidad ' + (r3d.q || 0).toFixed(2) : '')); } catch (e) {}
             parts.push('Fecha: ' + new Date().toLocaleString('es-CL'));
             return parts.join(' · ');
         }
@@ -12388,25 +12390,35 @@
         function r3dActive() {
             if (!(window.settings && settings.view3d) || r3d.failed) return false;
             if (!r3d.ready) { r3dLoad(); return false; }
-            return true;
+            return !r3d.lost;
         }
+        const R3D_SRC = ['assets/lib/three.min.js', 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js', 'https://cdn.jsdelivr.net/npm/three@0.128.0/build/three.min.js'];
         function r3dLoad() {
             if (r3d.ready || r3d.loading || r3d.failed) return;
             r3d.loading = true;
-            if (window.THREE) { try { r3dInit(); } catch (e) { r3dFail(e); } return; }
-            const sc = document.createElement('script');
-            sc.src = 'assets/lib/three.min.js';
-            sc.onload = () => { try { r3dInit(); } catch (e) { r3dFail(e); } };
-            sc.onerror = () => r3dFail('no se pudo cargar three.js');
-            document.head.appendChild(sc);
+            const go = () => { try { r3dInit(); } catch (e) { r3dFail(e); } };
+            if (window.THREE) { go(); return; }
+            const tryN = (i) => {
+                if (i >= R3D_SRC.length) { r3dFail('load'); return; }
+                const sc = document.createElement('script');
+                sc.src = R3D_SRC[i]; sc.async = true;
+                const t = setTimeout(() => { sc.onload = sc.onerror = null; tryN(i + 1); }, 15000);      // si no llega en 15 s, prueba el siguiente
+                sc.onload = () => { clearTimeout(t); if (window.THREE) go(); else tryN(i + 1); };
+                sc.onerror = () => { clearTimeout(t); tryN(i + 1); };
+                document.head.appendChild(sc);
+            };
+            tryN(0);
         }
         function r3dFail(e) {
             console.warn('[3D]', e);
+            const why = e === 'load' ? 'no se pudo descargar el motor 3D (revisa tu conexión)' : e === 'sin WebGL' ? 'tu navegador tiene desactivado WebGL (gráficos 3D)' : 'ocurrió un error al dibujar en 3D';
+            r3d.why = why;
+            try { localStorage.setItem('cdn26_3d_err', JSON.stringify({ why, msg: String((e && e.message) || e).slice(0, 200), ua: navigator.userAgent, at: Date.now() })); } catch (x) {}
             r3d.loading = false; r3d.failed = true;
             if (window.settings) { settings.view3d = false; try { saveSettings(); } catch (x) {} }
             const cb = document.getElementById('set-3d'); if (cb) cb.checked = false;
             r3dSyncBtn();
-            try { padToast('⚠️ El modo 3D no funciona en este dispositivo: seguimos en 2D'); } catch (x) {}
+            try { padToast('⚠️ Modo 3D: ' + r3d.why + '. Seguimos en 2D.'); } catch (x) {}
         }
         function r3dHide() { if (r3d.el && r3d.el.style.display !== 'none') { r3d.el.style.display = 'none'; document.body.classList.remove('v3d'); } }
         // --- texturas dibujadas una vez ---
@@ -12436,10 +12448,19 @@
             el.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:0;display:none;pointer-events:none';
             canvas.parentNode.insertBefore(el, canvas);
             const mob = r3dMobile();
-            let ren;
-            try { ren = new T.WebGLRenderer({ canvas: el, antialias: !mob, alpha: false, powerPreference: 'high-performance', stencil: false }); } catch (e) { throw 'sin WebGL'; }
-            if (!ren.getContext()) throw 'sin WebGL';
-            r3d.q = mob ? Math.min(window.devicePixelRatio || 1, 1.25) : Math.min(window.devicePixelRatio || 1, 2);
+            let ren = null;
+            const opts = [{ antialias: !mob, powerPreference: 'high-performance' }, { antialias: false, powerPreference: 'default' }, { antialias: false, powerPreference: 'low-power', precision: 'mediump' }];
+            for (const o of opts) {
+                try { ren = new T.WebGLRenderer({ canvas: el, alpha: false, stencil: false, depth: true, failIfMajorPerformanceCaveat: false, ...o }); if (ren.getContext()) break; } catch (e) { ren = null; }
+            }
+            if (!ren || !ren.getContext()) throw 'sin WebGL';
+            // si el sistema pausa los gráficos (cambiar de app, bloqueo), se vuelve a armar al volver
+            el.addEventListener('webglcontextlost', (ev) => { ev.preventDefault(); r3d.lost = true; }, false);
+            el.addEventListener('webglcontextrestored', () => { r3d.lost = false; r3dRebuild(); }, false);
+            const low = (navigator.deviceMemory && navigator.deviceMemory <= 3) || (navigator.hardwareConcurrency && navigator.hardwareConcurrency <= 2);
+            r3d.low = !!(mob && low);
+            r3d.maxQ = mob ? (r3d.low ? 0.9 : 1.25) : 2;
+            r3d.q = Math.min(window.devicePixelRatio || 1, r3d.maxQ);
             ren.setPixelRatio(r3d.q);
             ren.setSize(window.innerWidth, window.innerHeight, false);
             const scene = new T.Scene();
@@ -12452,7 +12473,7 @@
             // suelo exterior y cancha
             const ground = new T.Mesh(new T.PlaneGeometry(W + 1400, H + 1200), new T.MeshBasicMaterial({ color: '#0b2418' }));
             ground.rotation.x = -Math.PI / 2; ground.position.set(cx, -0.6, cz); scene.add(ground);
-            const ptex = r3dPitchTex(); ptex.anisotropy = Math.min(mob ? 4 : 8, ren.capabilities.getMaxAnisotropy());
+            const ptex = r3dPitchTex(); ptex.anisotropy = Math.min(r3d.low ? 1 : mob ? 4 : 8, ren.capabilities.getMaxAnisotropy() || 1);
             const field = new T.Mesh(new T.PlaneGeometry(W, H), new T.MeshBasicMaterial({ map: ptex }));
             field.rotation.x = -Math.PI / 2; field.position.set(cx, 0, cz); scene.add(field);
             // carteles de publicidad alrededor
@@ -12554,8 +12575,15 @@
             r3d.scene.add(g);
             return g;
         }
+        function r3dRebuild() {
+            try { r3d.objs.forEach((g, p) => r3dDrop(p, g)); if (r3d.el) r3d.el.remove(); } catch (e) {}
+            window.removeEventListener('resize', r3dResize);
+            Object.assign(r3d, { ready: false, loading: false, camInit: false, objs: new Map(), mats: {} });
+            r3dLoad();
+        }
         function r3dFrame(dt) {
             const T = THREE;
+            if (r3d.lost) return;
             if (r3d.el.style.display === 'none') { r3d.el.style.display = 'block'; document.body.classList.add('v3d'); r3dResize(); }
             dt = Math.min(0.1, Math.max(0, dt || 0.016));
             r3d.t += dt;
@@ -12623,7 +12651,7 @@
             const avg = r3d.perf.reduce((a, b) => a + b, 0) / r3d.perf.length; r3d.perf = [];
             let q = r3d.q;
             if (avg > 0.024 && q > 0.6) q = Math.max(0.6, q - 0.2);
-            else if (avg < 0.0175 && q < (r3dMobile() ? 1.25 : 2)) q = Math.min(r3dMobile() ? 1.25 : 2, q + 0.1);
+            else if (avg < 0.0175 && q < r3d.maxQ) q = Math.min(r3d.maxQ, q + 0.1);
             if (Math.abs(q - r3d.q) > 0.01) { r3d.q = q; r3d.ren.setPixelRatio(q); r3d.ren.setSize(window.innerWidth, window.innerHeight, false); }
         }
         // De 3D a pantalla (para los nombres, flechas y barras que se dibujan encima en 2D)
