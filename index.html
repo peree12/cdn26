@@ -1142,7 +1142,7 @@
     <!-- PANTALLA DE INICIO: el primer toque arranca la música -->
     <button id="splash" type="button" aria-label="Toca para entrar" style="position:fixed;inset:0;z-index:60;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:10px;background:#1f6f58 url('assets/img/splash.jpg') center/cover no-repeat;cursor:pointer;border:0;margin:0;width:100%;height:100%;color:inherit;font:inherit;-webkit-tap-highlight-color:transparent;touch-action:manipulation;transition:opacity .6s ease;padding:24px;text-align:center;">
         <div class="splash-pulse" style="font-family:'Teko',sans-serif;font-weight:700;font-size:clamp(30px,6.5vw,52px);letter-spacing:.08em;color:#fff;line-height:1;text-shadow:0 2px 14px rgba(0,0,0,.75),0 0 2px #000;">TOCA PARA EMPEZAR</div>
-        <div style="font-size:12px;color:#d1fae5;font-family:monospace;text-shadow:0 1px 4px #000;margin-bottom:max(2vh,env(safe-area-inset-bottom));">Versión 1.1 • @amahaled9</div>
+        <div style="font-size:12px;color:#d1fae5;font-family:monospace;text-shadow:0 1px 4px #000;margin-bottom:max(2vh,env(safe-area-inset-bottom));">Versión 1.2 • @amahaled9</div>
     </button>
     <script>
         try { if (/iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1)) document.documentElement.classList.add('ios'); } catch (e) {}
@@ -1898,7 +1898,7 @@
                 </div>
                     </section>
 
-                    <div class="fm-foot"><span class="fm-hint"><kbd>Enter</kbd> Seleccionar <kbd>Q</kbd><kbd>E</kbd> Pestañas <kbd>← ↑ ↓ →</kbd> Moverse</span><span class="fm-ver">Versión 1.1 · Desarrollado por <b>@amahaled9</b></span></div>
+                    <div class="fm-foot"><span class="fm-hint"><kbd>Enter</kbd> Seleccionar <kbd>Q</kbd><kbd>E</kbd> Pestañas <kbd>← ↑ ↓ →</kbd> Moverse</span><span class="fm-ver">Versión 1.2 · Desarrollado por <b>@amahaled9</b></span></div>
                 </div>
             </div>
         </div>
@@ -2266,6 +2266,7 @@
             <button id="pm-sim" class="pm-btn" style="display:none">⏩ Simular el resto del partido</button>
             <button id="pm-restart" class="pm-btn">↻ Comenzar otra partida</button>
             <button id="pm-subs" class="pm-btn">🔄 Sustituciones y energía</button>
+            <button id="pm-3d" class="pm-btn">🎮 Vista: 2D (cambiar a 3D)</button>
             <button id="pm-colors" class="pm-btn">🎨 Colores de equipos</button>
             <button id="pm-settings" class="pm-btn">⚙ Ajustes</button>
             <button id="pm-fullscreen" class="pm-btn">⛶ Pantalla completa</button>
@@ -2350,6 +2351,7 @@
                 <label class="set-row"><span>Apuntar con el mouse (PC) <small style="display:block;color:#94a3b8;font-weight:500">Clic izq = pase · clic der = tiro · clic rueda = filtrado</small></span><input id="set-mouse" type="checkbox" class="set-toggle"></label>
                 <div class="set-row"><span>Velocidad de jugadores <b id="set-speed-val" class="set-val">Normal</b></span>
                     <div class="set-range"><small>Lenta</small><input id="set-speed" type="range" min="0.8" max="1.25" step="0.05"><small>Rápida</small></div></div>
+                <label class="set-row"><span>🎮 Modo 3D <small style="display:block;color:#94a3b8;font-weight:500">Partido en 3D con cámara de TV · si tu celular va lento, desactívalo</small></span><input id="set-3d" type="checkbox" class="set-toggle"></label>
                 <div class="set-row"><span>FOV de cámara <b id="set-fov-val" class="set-val">Normal</b></span>
                     <div class="set-range"><small>Cerca</small><input id="set-fov" type="range" min="0.7" max="1.5" step="0.05"><small>Lejos</small></div></div>
             </div>
@@ -2984,6 +2986,7 @@
             applyTouchLayout();
             document.getElementById('set-diff-val').textContent = DIFFICULTIES[clamp(settings.difficulty, 0, 4)].name;
             document.getElementById('set-fov').value = settings.fov;
+            document.getElementById('set-3d').checked = !!settings.view3d;
             document.getElementById('set-fov-val').textContent = settings.fov < 0.9 ? 'Cerca' : (settings.fov > 1.15 ? 'Lejos' : 'Normal');
             document.getElementById('set-music').value = settings.musicVol;
             document.getElementById('set-sfx').value = settings.sfxVol;
@@ -3117,6 +3120,7 @@
                 document.getElementById('set-diff-val').textContent = DIFFICULTIES[settings.difficulty].name;
                 saveSettings();
             });
+            document.getElementById('set-3d').addEventListener('change', (e) => r3dToggle(e.target.checked));
             document.getElementById('set-fov').addEventListener('input', (e) => { settings.fov = parseFloat(e.target.value); applySettings(); saveSettings(); });
             document.getElementById('set-music').addEventListener('input', (e) => { settings.musicVol = parseFloat(e.target.value); applySettings(); saveSettings(); });
             document.getElementById('set-sfx').addEventListener('input', (e) => { settings.sfxVol = parseFloat(e.target.value); applySettings(); saveSettings(); });
@@ -9011,15 +9015,18 @@
         // =====================================================================
         // --- NOTAS DE ACTUALIZACIÓN ---
         // =====================================================================
-        const NOTES_VER = '2026-11-05-v11';
+        const NOTES_VER = '2026-11-10-v12';
         const UPDATE_NOTES = [
-            { v: 'Versión 1.1 · Mercado y campeones', tag: 'NUEVO', items: [
-                '🏆 ¡Real Mapuche, campeón de la Copa CDA 2026! Felicidades al Cuarto Medio A.',
-                '🆕 Ultimate Team: Agustín Cardenas (Real Mapuche, portero) con carta normal de 79 y Héroe de 86.',
-                                '🌍 Salas públicas: marca tu sala como pública y aparece en una lista para que cualquiera se una.',
+            { v: 'Versión 1.2 · Modo 3D', tag: 'NUEVO', items: [
+                '🎮 Nuevo Modo 3D: activa la vista 3D del partido en Ajustes (o en la pausa). Cámara de TV, jugadores en 3D, tribunas y arcos con red; se ajusta solo para que vaya fluido en el celular.',
+                '🌍 Salas públicas: marca tu sala como pública y aparece en una lista para que cualquiera se una.',
                 '🔄 Cambios en partidas online: el capitán de cada equipo (el primero de la sala en ese lado) puede hacer sustituciones con el botón 🔄.',
                 '🎵 La música del menú ahora es aleatoria de verdad y no repite las últimas canciones.',
-                '👕 Los jugadores sin dorsal ya tienen uno según su posición.',
+                '👕 Los jugadores sin dorsal ya tienen uno según su posición.'
+            ] },
+            { v: 'Versión 1.1 · Mercado y campeones', tag: '', items: [
+                '🏆 ¡Real Mapuche, campeón de la Copa CDA 2026! Felicidades al Cuarto Medio A.',
+                '🆕 Ultimate Team: Agustín Cardenas (Real Mapuche, portero) con carta normal de 79 y Héroe de 86.',
                 '🎓 Nueva Edición Profesor (exclusiva de Ultimate Team, solo en el Sobre Élite): Gabriel Pérez (EI, 93), Bastián Concho (POR, 89) y Christopher Gaete (DFC, 86). Si ya tenías a Gaete, tu carta pasó a ser la de Profesor.',
                 '🎉 28 celebraciones de gol con movimientos distintos: barrida de rodillas, trencito, ronda, montonera, trompo, avioncito y más. Cada jugador tiene su favorita.',
                 '⚡ Venta rápida de repetidas en Ultimate Team: vende de una vez todas las copias que te sobran (siempre te quedas con una).',
@@ -9716,6 +9723,8 @@
         function setupSubs() {
             document.getElementById('btn-subs').addEventListener('click', (e) => { e.stopPropagation(); openSubs(); });
             document.getElementById('pm-subs').addEventListener('click', openSubs);
+            document.getElementById('pm-3d').addEventListener('click', () => r3dToggle());
+            r3dSyncBtn();
             document.getElementById('pm-sim').addEventListener('click', simulateRestOfMatch);
             document.getElementById('ht-subs').addEventListener('click', () => { subSel = null; subsTeamSide = 'home'; saveEnergies(); renderSubs(); document.getElementById('subs-panel').classList.remove('hidden'); });
             document.getElementById('subs-body').addEventListener('click', (e) => {
@@ -12130,6 +12139,7 @@
         }
 
         function screenToWorld(clientX, clientY) {
+            if (typeof r3dActive === 'function' && document.body.classList.contains('v3d') && r3dActive()) { const w = r3dScreenToWorld(clientX, clientY); if (w) return w; }
             const r = canvas.getBoundingClientRect();
             const sx = (clientX - r.left) * (canvas.width / r.width);
             const sy = (clientY - r.top) * (canvas.height / r.height);
@@ -12368,6 +12378,321 @@
             ctx.restore();
         }
 
+        // =====================================================================
+        // MODO 3D (Ajustes → Modo 3D): el mismo partido dibujado en 3D con cámara de TV.
+        // Usa three.js (assets/lib/three.min.js, licencia MIT) y solo se carga si activas el modo.
+        // La física y las reglas no cambian: solo cambia cómo se ve. Los textos y el radar siguen en 2D encima.
+        // =====================================================================
+        const r3d = { ready: false, loading: false, failed: false, el: null, ren: null, scene: null, cam: null, objs: new Map(), ball: null, q: 1, perf: [], t: 0, mats: {}, geo: null, ray: null };
+        const r3dMobile = () => matchMedia('(pointer: coarse)').matches;
+        function r3dActive() {
+            if (!(window.settings && settings.view3d) || r3d.failed) return false;
+            if (!r3d.ready) { r3dLoad(); return false; }
+            return true;
+        }
+        function r3dLoad() {
+            if (r3d.ready || r3d.loading || r3d.failed) return;
+            r3d.loading = true;
+            if (window.THREE) { try { r3dInit(); } catch (e) { r3dFail(e); } return; }
+            const sc = document.createElement('script');
+            sc.src = 'assets/lib/three.min.js';
+            sc.onload = () => { try { r3dInit(); } catch (e) { r3dFail(e); } };
+            sc.onerror = () => r3dFail('no se pudo cargar three.js');
+            document.head.appendChild(sc);
+        }
+        function r3dFail(e) {
+            console.warn('[3D]', e);
+            r3d.loading = false; r3d.failed = true;
+            if (window.settings) { settings.view3d = false; try { saveSettings(); } catch (x) {} }
+            const cb = document.getElementById('set-3d'); if (cb) cb.checked = false;
+            r3dSyncBtn();
+            try { padToast('⚠️ El modo 3D no funciona en este dispositivo: seguimos en 2D'); } catch (x) {}
+        }
+        function r3dHide() { if (r3d.el && r3d.el.style.display !== 'none') { r3d.el.style.display = 'none'; document.body.classList.remove('v3d'); } }
+        // --- texturas dibujadas una vez ---
+        function r3dTex(w, h, draw) { const c = document.createElement('canvas'); c.width = w; c.height = h; draw(c.getContext('2d'), w, h); const t = new THREE.CanvasTexture(c); return t; }
+        function r3dPitchTex() {
+            return r3dTex(2048, 1024, (g, W, H) => {
+                g.scale(W / pitch.width, H / pitch.height);
+                g.fillStyle = '#0f172a'; g.fillRect(0, 0, pitch.width, pitch.height);
+                g.fillStyle = '#047857'; g.fillRect(18, 18, pitch.width - 36, pitch.height - 36);
+                const sw = (pitch.width - 36) / 10; g.fillStyle = '#065f46';
+                for (let i = 0; i < 10; i += 2) g.fillRect(18 + i * sw, 18, sw, pitch.height - 36);
+                // pasto con un poco de textura
+                for (let i = 0; i < 2600; i++) { g.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.025)' : 'rgba(0,0,0,0.04)'; g.fillRect(18 + Math.random() * (pitch.width - 36), 18 + Math.random() * (pitch.height - 36), 2, 1.2); }
+                g.strokeStyle = 'rgba(255,255,255,0.92)'; g.lineWidth = 3;
+                g.strokeRect(18, 18, pitch.width - 36, pitch.height - 36);
+                g.beginPath(); g.moveTo(pitch.width / 2, 18); g.lineTo(pitch.width / 2, pitch.height - 18); g.stroke();
+                g.beginPath(); g.arc(pitch.width / 2, pitch.height / 2, 65, 0, Math.PI * 2); g.stroke();
+                g.fillStyle = '#fff'; g.beginPath(); g.arc(pitch.width / 2, pitch.height / 2, 4, 0, Math.PI * 2); g.fill();
+                g.beginPath(); g.arc(18, pitch.height / 2, 110, -Math.PI / 2, Math.PI / 2); g.stroke();
+                g.beginPath(); g.arc(pitch.width - 18, pitch.height / 2, 110, Math.PI / 2, -Math.PI / 2); g.stroke();
+                g.beginPath(); g.arc(18 + 75, pitch.height / 2, 3.5, 0, Math.PI * 2); g.arc(pitch.width - 18 - 75, pitch.height / 2, 3.5, 0, Math.PI * 2); g.fill();
+            });
+        }
+        function r3dInit() {
+            const T = THREE;
+            const el = document.createElement('canvas'); el.id = 'gl3d';
+            el.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;z-index:0;display:none;pointer-events:none';
+            canvas.parentNode.insertBefore(el, canvas);
+            const mob = r3dMobile();
+            let ren;
+            try { ren = new T.WebGLRenderer({ canvas: el, antialias: !mob, alpha: false, powerPreference: 'high-performance', stencil: false }); } catch (e) { throw 'sin WebGL'; }
+            if (!ren.getContext()) throw 'sin WebGL';
+            r3d.q = mob ? Math.min(window.devicePixelRatio || 1, 1.25) : Math.min(window.devicePixelRatio || 1, 2);
+            ren.setPixelRatio(r3d.q);
+            ren.setSize(window.innerWidth, window.innerHeight, false);
+            const scene = new T.Scene();
+            scene.background = new T.Color('#0a1628');
+            scene.fog = new T.Fog('#0a1628', 1300, 2600);
+            const cam = new T.PerspectiveCamera(40, window.innerWidth / window.innerHeight, 10, 4000);
+            scene.add(new T.HemisphereLight(0xffffff, 0x2f4f3a, 0.95));
+            const sun = new T.DirectionalLight(0xffffff, 0.65); sun.position.set(-300, 700, 500); scene.add(sun);
+            const W = pitch.width, H = pitch.height, cx = W / 2, cz = H / 2;
+            // suelo exterior y cancha
+            const ground = new T.Mesh(new T.PlaneGeometry(W + 1400, H + 1200), new T.MeshBasicMaterial({ color: '#0b2418' }));
+            ground.rotation.x = -Math.PI / 2; ground.position.set(cx, -0.6, cz); scene.add(ground);
+            const ptex = r3dPitchTex(); ptex.anisotropy = Math.min(mob ? 4 : 8, ren.capabilities.getMaxAnisotropy());
+            const field = new T.Mesh(new T.PlaneGeometry(W, H), new T.MeshBasicMaterial({ map: ptex }));
+            field.rotation.x = -Math.PI / 2; field.position.set(cx, 0, cz); scene.add(field);
+            // carteles de publicidad alrededor
+            const adTex = r3dTex(1024, 64, (g, w, h) => {
+                const cols = ['#e11d74', '#0ea5e9', '#facc15', '#16a34a'];
+                for (let i = 0; i < 4; i++) { g.fillStyle = cols[i]; g.fillRect(i * w / 4, 0, w / 4, h); g.fillStyle = i === 2 ? '#111827' : '#fff'; g.font = '900 34px Inter, sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(['CDN 26', 'FÚTBOL 5', 'ARCADE', 'CDN SPORTS'][i], i * w / 4 + w / 8, h / 2 + 2); }
+            });
+            adTex.wrapS = T.RepeatWrapping;
+            const adMat = (rep) => { const t = adTex.clone(); t.needsUpdate = true; t.wrapS = T.RepeatWrapping; t.repeat.set(rep, 1); return new T.MeshBasicMaterial({ map: t }); };
+            const board = (w, x, z, ry) => { const m = new T.Mesh(new T.PlaneGeometry(w, 9), adMat(Math.max(1, Math.round(w / 260)))); m.position.set(x, 4.5, z); m.rotation.y = ry; scene.add(m); };
+            board(W + 40, cx, -26, 0); board(H + 40, -26, cz, Math.PI / 2); board(H + 40, W + 26, cz, -Math.PI / 2);
+            // tribunas con público (fondo y los costados)
+            const crowd = r3dTex(512, 128, (g, w, h) => {
+                g.fillStyle = '#1e293b'; g.fillRect(0, 0, w, h);
+                const cs = ['#e11d74', '#f8fafc', '#0ea5e9', '#facc15', '#16a34a', '#ef4444', '#a855f7', '#f97316', '#1d4ed8'];
+                for (let y = 6; y < h; y += 14) for (let x = (y % 28 ? 4 : 10); x < w; x += 12) { g.fillStyle = cs[(Math.random() * cs.length) | 0]; g.globalAlpha = 0.45 + Math.random() * 0.25; g.fillRect(x, y, 8, 8); g.fillStyle = '#c99a6b'; g.fillRect(x + 2, y - 4, 4, 4); }
+                g.globalAlpha = 1;
+            });
+            crowd.wrapS = T.RepeatWrapping;
+            const stand = (w, x, z, ry) => {
+                const t = crowd.clone(); t.needsUpdate = true; t.wrapS = T.RepeatWrapping; t.repeat.set(Math.round(w / 220), 1);
+                const m = new T.Mesh(new T.PlaneGeometry(w, 150), new T.MeshBasicMaterial({ map: t }));
+                m.position.set(x, 62, z); m.rotation.y = ry; m.rotation.x = 0; scene.add(m);
+                m.rotateX(-0.85);
+                const roof = new T.Mesh(new T.BoxGeometry(w, 6, 60), new T.MeshLambertMaterial({ color: '#334155' })); roof.position.set(x, 130, z); roof.rotation.y = ry; roof.translateZ(-50); scene.add(roof);
+            };
+            stand(W + 260, cx, -90, 0); stand(H + 160, -90, cz, Math.PI / 2); stand(H + 160, W + 90, cz, -Math.PI / 2);
+            // arcos con red
+            const GH = 50, post = new T.MeshLambertMaterial({ color: '#f8fafc' });
+            const netTex = r3dTex(64, 64, (g, w, h) => { g.strokeStyle = 'rgba(255,255,255,0.85)'; g.lineWidth = 3; for (let i = 0; i <= w; i += 16) { g.beginPath(); g.moveTo(i, 0); g.lineTo(i, h); g.stroke(); g.beginPath(); g.moveTo(0, i); g.lineTo(w, i); g.stroke(); } });
+            netTex.wrapS = netTex.wrapT = T.RepeatWrapping;
+            const netMat = (rx, ry) => { const t = netTex.clone(); t.needsUpdate = true; t.wrapS = t.wrapT = T.RepeatWrapping; t.repeat.set(rx, ry); return new T.MeshBasicMaterial({ map: t, transparent: true, opacity: 0.55, side: T.DoubleSide, depthWrite: false }); };
+            const gw = GOAL_BOTTOM - GOAL_TOP, gd = 24;
+            [[18, -1], [W - 18, 1]].forEach(([gx, s]) => {
+                const g = new T.Group();
+                const cyl = (len) => new T.CylinderGeometry(2.2, 2.2, len, 8);
+                const p1 = new T.Mesh(cyl(GH), post); p1.position.set(0, GH / 2, GOAL_TOP); g.add(p1);
+                const p2 = p1.clone(); p2.position.z = GOAL_BOTTOM; g.add(p2);
+                const bar = new T.Mesh(cyl(gw), post); bar.rotation.x = Math.PI / 2; bar.position.set(0, GH, cz); g.add(bar);
+                const back = new T.Mesh(new T.PlaneGeometry(gw, GH), netMat(gw / 12, GH / 12)); back.rotation.y = Math.PI / 2; back.position.set(s * gd, GH / 2, cz); g.add(back);
+                const top = new T.Mesh(new T.PlaneGeometry(gd, gw), netMat(gd / 12, gw / 12)); top.rotation.x = -Math.PI / 2; top.position.set(s * gd / 2, GH, cz); g.add(top);
+                [GOAL_TOP, GOAL_BOTTOM].forEach(z => { const sd = new T.Mesh(new T.PlaneGeometry(gd, GH), netMat(gd / 12, GH / 12)); sd.position.set(s * gd / 2, GH / 2, z); g.add(sd); });
+                g.position.x = gx; scene.add(g);
+            });
+            // piezas de los jugadores (compartidas)
+            r3d.geo = {
+                torso: new T.CylinderGeometry(7.5, 6.5, 15, 10), shorts: new T.CylinderGeometry(6.6, 6.2, 6, 10),
+                leg: new T.BoxGeometry(3.6, 12, 3.6), arm: new T.BoxGeometry(2.8, 12, 2.8), head: new T.SphereGeometry(5.4, 12, 10),
+                hair: new T.SphereGeometry(5.8, 12, 6, 0, Math.PI * 2, 0, Math.PI / 2.1), shadow: new T.CircleGeometry(11, 16),
+                ring: new T.RingGeometry(14, 17.5, 28), num: new T.PlaneGeometry(9, 9)
+            };
+            r3d.mats.shadow = new T.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.32, depthWrite: false });
+            r3d.mats.ringH = new T.MeshBasicMaterial({ color: '#fde047', side: T.DoubleSide, depthWrite: false });
+            r3d.mats.ringA = new T.MeshBasicMaterial({ color: '#93c5fd', side: T.DoubleSide, depthWrite: false });
+            r3d.mats.ringB = new T.MeshBasicMaterial({ color: '#fbbf24', side: T.DoubleSide, transparent: true, opacity: 0.7, depthWrite: false });
+            // balón
+            const btex = r3dTex(128, 64, (g, w, h) => { g.fillStyle = '#fff'; g.fillRect(0, 0, w, h); g.fillStyle = '#111827'; [[16, 16], [48, 40], [80, 14], [112, 38], [32, 52], [96, 56], [64, 26]].forEach(([x, y]) => { g.beginPath(); for (let k = 0; k < 5; k++) { const a = k / 5 * Math.PI * 2; g.lineTo(x + Math.cos(a) * 7, y + Math.sin(a) * 7); } g.fill(); }); });
+            const br = (ball && ball.radius) || 6;
+            const bm = new T.Mesh(new T.SphereGeometry(br, 16, 12), new T.MeshLambertMaterial({ map: btex, emissive: new T.Color('#000000') }));
+            scene.add(bm);
+            const bs = new T.Mesh(new T.CircleGeometry(br * 1.1, 14), r3d.mats.shadow); bs.rotation.x = -Math.PI / 2; bs.position.y = 0.4; scene.add(bs);
+            r3d.ball = bm; r3d.ballShadow = bs; r3d.br = br;
+            r3d.ray = new T.Raycaster(); r3d.plane = new T.Plane(new T.Vector3(0, 1, 0), 0);
+            Object.assign(r3d, { el, ren, scene, cam, ready: true, loading: false });
+            window.addEventListener('resize', r3dResize);
+            r3dSyncBtn();
+        }
+        function r3dResize() {
+            if (!r3d.ready) return;
+            r3d.ren.setSize(window.innerWidth, window.innerHeight, false);
+            r3d.cam.aspect = window.innerWidth / window.innerHeight; r3d.cam.updateProjectionMatrix();
+        }
+        const r3dSkins = ['#f1c27d', '#e0ac69', '#c68642', '#a0663a', '#ffdbac', '#d9a066'];
+        const r3dHairs = ['#1f1b16', '#2b1d12', '#3b2414', '#111111', '#4a3020'];
+        function r3dMat(color) {
+            const k = 'c' + color; if (!r3d.mats[k]) r3d.mats[k] = new THREE.MeshLambertMaterial({ color }); return r3d.mats[k];
+        }
+        function r3dMakePlayer(p) {
+            const T = THREE, G = r3d.geo, g = new T.Group();
+            let h = 0; const nm = p.name || ''; for (let i = 0; i < nm.length; i++) h = (h * 31 + nm.charCodeAt(i)) >>> 0;
+            const shirt = p.isGK ? (p.team.gkColor || '#f59e0b') : (p.team.primaryColor || '#2563eb');
+            const trim = p.team.trimColor || '#ffffff';
+            const skin = r3dMat(r3dSkins[h % r3dSkins.length]);
+            const body = new T.Group(); g.add(body);
+            const torso = new T.Mesh(G.torso, r3dMat(shirt)); torso.position.y = 25; body.add(torso);
+            const shorts = new T.Mesh(G.shorts, r3dMat(p.isGK ? '#1f2937' : (trim === '#ffffff' ? '#f8fafc' : trim))); shorts.position.y = 15; body.add(shorts);
+            const legs = [-1, 1].map(s => { const pv = new T.Group(); pv.position.set(s * 3.2, 13, 0); const l = new T.Mesh(G.leg, r3dMat(shirt)); l.position.y = -6; pv.add(l); body.add(pv); return pv; });
+            const arms = [-1, 1].map(s => { const pv = new T.Group(); pv.position.set(s * 9, 31, 0); const a = new T.Mesh(G.arm, skin); a.position.y = -5.5; pv.add(a); body.add(pv); return pv; });
+            const head = new T.Mesh(G.head, skin); head.position.y = 38; body.add(head);
+            const hair = new T.Mesh(G.hair, r3dMat(r3dHairs[(h >> 3) % r3dHairs.length])); hair.position.y = 38.6; hair.rotation.x = -0.25; body.add(hair);
+            if (p.num) {
+                const tex = r3dTex(64, 64, (c, w, hh) => { c.font = '900 46px Inter, sans-serif'; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineWidth = 6; c.strokeStyle = 'rgba(0,0,0,.45)'; c.strokeText(String(p.num), w / 2, hh / 2 + 3); c.fillStyle = trim; c.fillText(String(p.num), w / 2, hh / 2 + 3); });
+                const nmesh = new T.Mesh(G.num, new T.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })); nmesh.position.set(0, 26, -7.3); nmesh.rotation.y = Math.PI; body.add(nmesh);
+                g.userData.tex = tex;
+            }
+            const sh = new T.Mesh(G.shadow, r3d.mats.shadow); sh.rotation.x = -Math.PI / 2; sh.position.y = 0.3; g.add(sh);
+            const ring = new T.Mesh(G.ring, p.isHome ? r3d.mats.ringH : r3d.mats.ringA); ring.rotation.x = -Math.PI / 2; ring.position.y = 0.5; ring.visible = false; g.add(ring);
+            Object.assign(g.userData, { body, legs, arms, ring, phase: (h % 100) / 10, key: p.name + '|' + p.isGK + '|' + shirt + '|' + p.num });
+            r3d.scene.add(g);
+            return g;
+        }
+        function r3dFrame(dt) {
+            const T = THREE;
+            if (r3d.el.style.display === 'none') { r3d.el.style.display = 'block'; document.body.classList.add('v3d'); r3dResize(); }
+            dt = Math.min(0.1, Math.max(0, dt || 0.016));
+            r3d.t += dt;
+            // jugadores
+            const seen = new Set();
+            players.forEach(p => {
+                let g = r3d.objs.get(p);
+                const shirt = p.isGK ? (p.team.gkColor || '#f59e0b') : (p.team.primaryColor || '#2563eb');
+                if (g && g.userData.key !== p.name + '|' + p.isGK + '|' + shirt + '|' + p.num) { r3dDrop(p, g); g = null; }
+                if (!g) { g = r3dMakePlayer(p); r3d.objs.set(p, g); }
+                seen.add(p);
+                const u = g.userData, sp = Math.hypot(p.vx || 0, p.vy || 0);
+                g.position.set(p.x, 0, p.y);
+                u.body.rotation.y = Math.PI / 2 - (p.angle || 0);
+                const run = Math.min(1, sp / 2.2);
+                u.phase += dt * (6 + sp * 3.2);
+                const sw = Math.sin(u.phase) * 0.85 * run;
+                u.legs[0].rotation.x = sw; u.legs[1].rotation.x = -sw;
+                u.arms[0].rotation.x = -sw * 0.8; u.arms[1].rotation.x = sw * 0.8;
+                let lift = Math.abs(Math.sin(u.phase)) * 1.2 * run;
+                if (celeb && celeb.scorer === p && gameState === 'GOAL') {           // festejo: salta y abre los brazos
+                    const big = celeb.m === 'jump' || celeb.m === 'spin';
+                    lift = Math.abs(Math.sin(celeb.t * (big ? 7 : 8))) * (big ? 16 : 8);
+                    u.arms[0].rotation.z = 2.4; u.arms[1].rotation.z = -2.4;
+                } else { u.arms[0].rotation.z = 0.12; u.arms[1].rotation.z = -0.12; }
+                if (p.isGK && ball.holder === p) { u.arms[0].rotation.x = u.arms[1].rotation.x = -1.3; }
+                u.body.position.y = lift;
+                u.ring.visible = !!p.controlled || ball.holder === p;
+                u.ring.material = p.controlled ? (p.isHome ? r3d.mats.ringH : r3d.mats.ringA) : r3d.mats.ringB;
+            });
+            r3d.objs.forEach((g, p) => { if (!seen.has(p)) r3dDrop(p, g); });
+            // balón: rueda según su velocidad, sube en los tiros fuertes
+            const b = r3d.ball, bv = Math.hypot(ball.vx || 0, ball.vy || 0);
+            let bh = r3d.br;
+            if (ball.holder) bh = r3d.br;
+            else if (ball.isShot && bv > 9) bh = r3d.br + Math.min(18, (bv - 9) * 2.2);
+            else if (ball.lob) bh = r3d.br + 20;
+            b.position.set(ball.x, bh, ball.y);
+            if (bv > 0.05) { const ax = new T.Vector3(ball.vy, 0, -ball.vx).normalize(); b.rotateOnWorldAxis(ax, -bv * dt * 60 / r3d.br); }
+            b.material.emissive.set(ball.fire ? '#f97316' : '#000000');
+            r3d.ballShadow.position.set(ball.x + 1.5, 0.4, ball.y + 1.5);
+            const ss = 1 / (1 + (bh - r3d.br) / 30); r3d.ballShadow.scale.set(ss, ss, ss);
+            // cámara de TV: sigue la jugada desde un costado y en altura
+            const fov = (settings.fov || 1), asp = window.innerWidth / Math.max(1, window.innerHeight);
+            const far = fov * (asp < 1.25 ? 1.45 : asp < 1.6 ? 1.15 : 1);
+            const tx = clamp(cam.x, 140, pitch.width - 140), tz = clamp(cam.y, 130, pitch.height - 110);
+            const c = r3d.cam;
+            const wantX = tx, wantY = 300 * far, wantZ = tz + 410 * far;
+            const k = 1 - Math.pow(0.85, dt * 60);
+            if (!r3d.camInit) { c.position.set(wantX, wantY, wantZ); r3d.camInit = true; }
+            c.position.x += (wantX - c.position.x) * k; c.position.y += (wantY - c.position.y) * k; c.position.z += (wantZ - c.position.z) * k;
+            c.lookAt(c.position.x, 0, tz - 40 * far);
+            r3d.ren.render(r3d.scene, c);
+            r3dAutoQuality(dt);
+        }
+        function r3dDrop(p, g) {
+            r3d.scene.remove(g);
+            if (g.userData.tex) g.userData.tex.dispose();
+            g.traverse(o => { if (o.material && o.material.map && o.material.map === g.userData.tex) o.material.dispose(); });
+            r3d.objs.delete(p);
+        }
+        // Si el celular va lento, baja la resolución del 3D (nunca la del texto)
+        function r3dAutoQuality(dt) {
+            r3d.perf.push(dt); if (r3d.perf.length < 90) return;
+            const avg = r3d.perf.reduce((a, b) => a + b, 0) / r3d.perf.length; r3d.perf = [];
+            let q = r3d.q;
+            if (avg > 0.024 && q > 0.6) q = Math.max(0.6, q - 0.2);
+            else if (avg < 0.0175 && q < (r3dMobile() ? 1.25 : 2)) q = Math.min(r3dMobile() ? 1.25 : 2, q + 0.1);
+            if (Math.abs(q - r3d.q) > 0.01) { r3d.q = q; r3d.ren.setPixelRatio(q); r3d.ren.setSize(window.innerWidth, window.innerHeight, false); }
+        }
+        // De 3D a pantalla (para los nombres, flechas y barras que se dibujan encima en 2D)
+        function r3dToScreen(x, y, z) {
+            const v = new THREE.Vector3(x, y, z).project(r3d.cam);
+            if (v.z > 1) return null;
+            return { x: (v.x * 0.5 + 0.5) * canvas.width, y: (-v.y * 0.5 + 0.5) * canvas.height };
+        }
+        function r3dScreenToWorld(clientX, clientY) {
+            if (!r3d.ready || !r3d.cam) return null;
+            const r = canvas.getBoundingClientRect();
+            const nx = ((clientX - r.left) / r.width) * 2 - 1, ny = -((clientY - r.top) / r.height) * 2 + 1;
+            r3d.ray.setFromCamera({ x: nx, y: ny }, r3d.cam);
+            const hit = new THREE.Vector3();
+            return r3d.ray.ray.intersectPlane(r3d.plane, hit) ? { x: hit.x, y: hit.z } : null;
+        }
+        function r3dOverlay() {
+            const d = canvas.width / Math.max(1, window.innerWidth);
+            ctx.save(); ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.textAlign = 'center'; ctx.lineJoin = 'round';
+            players.forEach(p => {
+                const top = r3dToScreen(p.x, 50, p.y); if (!top) return;
+                if (p.controlled) {                                            // flecha sobre tu jugador
+                    ctx.fillStyle = p.isHome ? '#fde047' : '#93c5fd';
+                    ctx.beginPath(); ctx.moveTo(top.x, top.y + 2 * d); ctx.lineTo(top.x - 6 * d, top.y - 7 * d); ctx.lineTo(top.x + 6 * d, top.y - 7 * d); ctx.closePath(); ctx.fill();
+                }
+                if (p.controlled || ball.holder === p) {
+                    const n = surname(p.name).toUpperCase();
+                    ctx.font = `700 ${10 * d}px Inter, sans-serif`; ctx.lineWidth = 3 * d; ctx.strokeStyle = 'rgba(0,0,0,0.7)'; ctx.fillStyle = '#fff';
+                    const ty = top.y - (p.controlled ? 11 : 2) * d;
+                    ctx.strokeText(n, top.x, ty); ctx.fillText(n, top.x, ty);
+                }
+                if (p.controlled && p.energy != null) {
+                    const e = clamp(p.energy, 0, 100) / 100, w = 26 * d, y = top.y - 26 * d;
+                    ctx.fillStyle = 'rgba(0,0,0,.55)'; ctx.fillRect(top.x - w / 2, y, w, 4 * d);
+                    ctx.fillStyle = energyColor(p.energy); ctx.fillRect(top.x - w / 2, y, w * e, 4 * d);
+                }
+                if (p.passCharging || p.kickPower > 0) {                        // barra de potencia
+                    const foot = r3dToScreen(p.x, 0, p.y + 16); if (!foot) return;
+                    const w = 46 * d, pw = p.passCharging ? (p.passPower || 0) / 100 : clamp((p.kickPower || 0) / 100, 0, 1);
+                    ctx.fillStyle = 'rgba(0,0,0,0.6)'; ctx.fillRect(foot.x - w / 2, foot.y, w, 6 * d);
+                    ctx.fillStyle = p.passCharging === 'through' ? '#a78bfa' : p.passCharging ? '#38bdf8' : '#f97316';
+                    ctx.fillRect(foot.x - w / 2, foot.y, w * pw, 6 * d);
+                }
+                if (celeb && celeb.scorer === p && gameState === 'GOAL') {
+                    const big = celeb.m === 'jump' || celeb.m === 'spin';
+                    const j = Math.abs(Math.sin(celeb.t * (big ? 7 : 9))) * (big ? 16 : 7) * d;
+                    ctx.font = `${(big ? 26 : 22) * d}px sans-serif`; ctx.fillText(celeb.emoji, top.x, top.y - 14 * d - j);
+                }
+            });
+            // flecha de apuntado (si está activada en Ajustes)
+            const me = players.find(q => q.controlled && q.isHome);
+            if (me && settings.aimArrow && gameState === 'PLAYING' && (ball.holder === me || me.passCharging)) {
+                const a = typeof mouseActive === 'function' && mouseActive() ? Math.atan2(mouseAim.y - me.y, mouseAim.x - me.x) : me.angle;
+                const s0 = r3dToScreen(me.x + Math.cos(a) * 16, 1, me.y + Math.sin(a) * 16), s1 = r3dToScreen(me.x + Math.cos(a) * 70, 1, me.y + Math.sin(a) * 70);
+                if (s0 && s1) { ctx.strokeStyle = 'rgba(253,224,71,.85)'; ctx.lineWidth = 3 * d; ctx.beginPath(); ctx.moveTo(s0.x, s0.y); ctx.lineTo(s1.x, s1.y); ctx.stroke(); }
+            }
+            ctx.restore();
+        }
+        // Botón rápido en la pausa
+        function r3dSyncBtn() {
+            const b = document.getElementById('pm-3d'); if (b) b.textContent = (window.settings && settings.view3d) ? '🎮 Vista: 3D (cambiar a 2D)' : '🎮 Vista: 2D (cambiar a 3D)';
+            const cb = document.getElementById('set-3d'); if (cb && window.settings) cb.checked = !!settings.view3d;
+        }
+        function r3dToggle(on) {
+            settings.view3d = on == null ? !settings.view3d : !!on;
+            if (settings.view3d) { r3d.failed = false; r3dLoad(); } else r3dHide();
+            saveSettings(); r3dSyncBtn();
+            try { padToast(settings.view3d ? '🎮 Modo 3D activado' : '🗺️ Vista 2D'); } catch (e) {}
+        }
         function renderGame() {
             const now = performance.now();
             const dt = (now - lastRenderTime) / 1000;
@@ -12375,6 +12700,13 @@
             view = computeView();
             updateCamera(dt, view.follow);
 
+            const use3d = view.follow && players.length && r3dActive();
+            if (use3d) {
+                try { r3dFrame(dt); } catch (e) { r3dFail(e); }
+                ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, canvas.width, canvas.height);
+                if (r3d.ready && !r3d.failed) r3dOverlay();
+            } else {
+            if (r3d.ready) r3dHide();
             ctx.setTransform(1, 0, 0, 1, 0, 0);
             ctx.fillStyle = '#0b1424';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
@@ -12404,6 +12736,7 @@
 
             ctx.restore();
 
+            }
             if (view.follow && players.length) drawRadar();
             if (view.follow && players.length && (gameState === 'PLAYING' || gameState === 'PAUSED')) drawMeIndicator();
 
